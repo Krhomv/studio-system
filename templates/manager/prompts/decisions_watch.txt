@@ -1,0 +1,17 @@
+Decisions watcher ({{PROJECT}}). Arm it with the Monitor tool, re-arm it every 30 min (when it expires), and after every
+session start or compaction:
+
+  Monitor command:  python "{{ROOT}}/{{HUB}}/board/watch.py" --minutes 30
+  description:      new user actions on the task board (decisions.jsonl)
+  timeout_ms:       1860000
+
+watch.py prints each new line of {{HUB}}/data/decisions.jsonl after the relayed cursor and exits on its own after 30 min (no orphan
+loops). "live" / "revert" lines (written by mark_live.py after a {{TERM_BUILD}}) need no relay: the morning message covers them.
+
+On each printed line:
+1. Relay it to the card's {{TERM_STUDIO}} with SendMessage, in the format of {{HUB}}/manager/relay_messages.md: card id, the action, the
+   user's words in quotes with the time, the new status. An "answer" goes to the {{TERM_STUDIO}} that asked. "merge" is the user's say-so
+   for that one merge. "hold" / "release" go to every {{TERM_STUDIO}} that uses the queue. A "priority" change goes to the owner only.
+2. Then run `python {{HUB}}/board/tick.py --relayed` from {{ROOT}} (the board then shows "passed to the studio").
+3. Note anything that changes tonight's {{TERM_BUILD}} in {{HUB}}/manager/NEXT.md ("FOR THE <round> BRIEF: ...").
+Write the re-arm time and cursor into NEXT.md's standing state when it changes.

@@ -1,0 +1,20 @@
+Tick ({{PROJECT}}; cron "7,27,47 * * * *", recurring). You keep the {{TERM_STUDIO}}s moving for the user. Working folder: {{ROOT}}.
+If {{HUB}}/BUILD_RUNNING exists, skip everything below except a HOLD flag on a {{TERM_STUDIO}} owner, and end with one line.
+Otherwise run `python {{HUB}}/board/tick.py`, then mcp__ccd_session_mgmt__list_sessions {"linked": true}. Act only on what needs it:
+- FLAG DECISION: relay each line to its {{TERM_STUDIO}} with SendMessage, quoting the user's words, time, card id and new status
+  (an "answer" goes to the {{TERM_STUDIO}} that asked; "merge" is the user's say-so for that one merge; "hold" / "release" go to every
+  {{TERM_STUDIO}} that uses the queue). Then run `python {{HUB}}/board/tick.py --relayed`.
+- FLAG HOLD: read the holder's own log tail. If it is stuck, message the owner {{TERM_STUDIO}} with the evidence (pid, last log line) and ask
+  it to stop its own job and release. Never kill another session's process.
+- FLAG WAIT / STUCK: recheck once after 1 min. If still stuck, find out why (turn order, a gate, a dead holder) and message the right
+  {{TERM_STUDIO}}.
+- FLAG GATE: tell the user in one line which of their apps hold how much and that the queue waits. Never loosen the gate.
+- FLAG READY: nudge that {{TERM_STUDIO}} to write or refresh its {{TERM_READY}} by {{DEADLINE}}.
+- FLAG BOARD: a posted {{TERM_RESULT}} under APPROVED / IN WORK -> ask the {{TERM_STUDIO}} to set RESULT; stale -> ask for a status note;
+  overtaken by events -> close with a reason or mark "waiting for X".
+- A {{TERM_STUDIO}} idle for more than 60 min with no ticket in the queue: point it to its user-approved tasks
+  (`python {{HUB}}/board/prio.py --studio <key>`), or ask it to propose a batch with pictures. Never to self-chosen work.
+  Don't nudge a {{TERM_STUDIO}} the user parked (see NEXT.md).
+- New PROPOSED or RESULT cards and open asks: batch them for the user when there are a few, or at once when one is urgent.
+- Check usage (mcp__ccd_session_mgmt__get_usage); at the halt threshold follow {{HUB}}/manager/USAGE_HALT.md.
+If everything is OK and nothing needs a nudge, end the turn with one short line and no wrap-up box.

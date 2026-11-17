@@ -1,0 +1,11 @@
+Resume ({{PROJECT}}). Use after a halt, an account switch, an app restart or a new {{TERM_MANAGER}} session. Working folder: {{ROOT}}.
+1. Read {{HUB}}/manager/AGENT.md, then the top of {{HUB}}/manager/NEXT.md (the HALTED / SNAPSHOT entry and the standing state).
+2. Check usage (mcp__ccd_session_mgmt__get_usage). If still at the halt threshold, tell the user and stop.
+3. Re-create the scheduled jobs from {{HUB}}/manager/prompts/ (tick.txt, usage_check.txt, handover_call.txt, build_trigger.txt) with
+   CronCreate, and arm the decisions watcher (decisions_watch.txt). Write the new ids and dates into NEXT.md's standing state.
+4. `python {{HUB}}/board/start.py` (idempotent) and `python {{HUB}}/board/tick.py`. Relay any DECISION lines that piled up.
+5. `python {{HUB}}/queue/resq.py status`. If a USER HOLD is held, ask the user whether they are done before anyone removes it.
+6. If a {{TERM_BUILD}} was mid-way, read its RESUME_BUILD.md and spawn a resume subagent at its NEXT line (the same brief).
+7. Tell each {{TERM_STUDIO}} "resume" with a pointer to its NOTES.md / HANDOFF.md (short messages; stagger if more than ~8), unless the
+   user resumes them directly. Don't wake a {{TERM_STUDIO}} the user parked.
+8. One line to the user: resumed, jobs re-created, what is open for them.

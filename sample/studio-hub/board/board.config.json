@@ -1,0 +1,138 @@
+{
+  "project": "Example Game",
+  "app_id": "board-example-game",
+  "port": 8790,
+  "root": "../..",
+  "paths": {
+    "register": "../data/PROPOSALS.md",
+    "decisions": "../data/decisions.jsonl",
+    "progress": "../data/progress",
+    "bundle": "../data/bundle.json",
+    "requests": "../requests/REQUESTS.md",
+    "ready": "../ready",
+    "build_marker": "../BUILD_RUNNING",
+    "queue": "../queue"
+  },
+  "image_bases": [
+    "",
+    "studio-hub",
+    "studios"
+  ],
+  "terms": {
+    "studio": "studio",
+    "studios": "studios",
+    "manager": "manager",
+    "user": "you",
+    "result": "result",
+    "build": "build",
+    "ready_file": "ready file"
+  },
+  "studios": [
+    {
+      "key": "art",
+      "prefix": "ART",
+      "owner": "art-studio",
+      "label": "Art",
+      "icon": "brush",
+      "color": "#d58fb8",
+      "ready": true,
+      "queue_owner": "art-studio"
+    },
+    {
+      "key": "audio",
+      "prefix": "AUD",
+      "owner": "audio-studio",
+      "label": "Audio",
+      "icon": "music",
+      "color": "#6fc3c9",
+      "ready": true,
+      "queue_owner": "audio-studio"
+    },
+    {
+      "key": "levels",
+      "prefix": "LVL",
+      "owner": "levels-studio",
+      "label": "Levels",
+      "icon": "map",
+      "color": "#92a6dc",
+      "ready": true,
+      "queue_owner": "levels-studio"
+    }
+  ],
+  "statuses": {
+    "HANDOFF": {
+      "enabled": true
+    },
+    "LIVE": {
+      "enabled": true
+    },
+    "BACKLOG": {
+      "enabled": true
+    }
+  },
+  "fields": [
+    "what",
+    "why",
+    "visual",
+    "scope",
+    "cost",
+    "decision",
+    "priority",
+    "result",
+    "accept",
+    "handoff"
+  ],
+  "image_fields": [
+    "visual",
+    "result"
+  ],
+  "priority": {
+    "default": 3,
+    "names": {
+      "1": "urgent",
+      "2": "high",
+      "3": "normal",
+      "4": "low"
+    }
+  },
+  "stale_hours": 3,
+  "schedule": {
+    "handover": "01:45",
+    "deadline": "02:45",
+    "build": "03:00"
+  },
+  "panels": {
+    "requests": {
+      "enabled": true,
+      "title": "Requests inbox"
+    },
+    "bundle": {
+      "enabled": true,
+      "owner": "levels-studio",
+      "title": "Level bundle",
+      "button": "Merge this bundle"
+    },
+    "queue": {
+      "enabled": true,
+      "title": "GPU"
+    },
+    "system": {
+      "enabled": true,
+      "gpu": "nvidia-smi"
+    }
+  },
+  "queue": {
+    "turn_max_min": 20,
+    "grace_s": 60,
+    "turn_tail_min": 3,
+    "short_max_min": 3,
+    "gap_ban_min": 60,
+    "priority_owners": [
+      "build*",
+      "nightly*"
+    ],
+    "hold_line": "USER HOLD",
+    "gate_cmd": "",
+    "on_hold_url": ""
+  }
+}

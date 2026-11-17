@@ -1,0 +1,19 @@
+{"ts": "2026-11-15T00:29:26", "id": "AUD-04", "studio": "audio-studio", "action": "reject", "comment": "the click is fine", "status": "REJECTED", "title": "New menu click sound"}
+{"ts": "2026-11-15T18:29:26", "id": "ART-01", "studio": "art-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Rock textures read flat at mid distance"}
+{"ts": "2026-11-15T22:29:26", "id": "ART-06", "studio": "art-studio", "action": "backlog", "comment": "", "status": "BACKLOG (user: not now)", "title": "Darker lake water"}
+{"ts": "2026-11-16T06:29:26", "id": "ART-01", "studio": "art-studio", "action": "accept", "comment": "", "status": "ACCEPTED", "title": "Rock textures read flat at mid distance"}
+{"ts": "2026-11-16T16:29:26", "id": "ART-01", "studio": "art-studio", "action": "live", "comment": "", "status": "LIVE (v3, r3)", "title": "Rock textures read flat at mid distance", "build": "v3"}
+{"ts": "2026-11-16T16:29:26", "id": "AUD-01", "studio": "audio-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Footsteps on wood sound like stone"}
+{"ts": "2026-11-16T18:29:26", "id": "AUD-02", "studio": "audio-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Ambient wind loop clicks at the loop point"}
+{"ts": "2026-11-16T20:29:26", "id": "ART-02", "studio": "art-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Torch glow too orange in the cave"}
+{"ts": "2026-11-16T22:29:26", "id": "LVL-02", "studio": "levels-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Cave entrance too narrow for the camera"}
+{"ts": "2026-11-17T02:29:26", "id": "ART-03", "studio": "art-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Grass tint on the north hill"}
+{"ts": "2026-11-17T02:29:26", "id": "ART-03", "studio": "art-studio", "action": "priority", "comment": "", "status": "APPROVED", "title": "Grass tint on the north hill", "from": "P3", "to": "P2"}
+{"ts": "2026-11-17T10:29:26", "id": "LVL-01", "studio": "levels-studio", "action": "new_request", "comment": "close the gap in the east bridge railing", "status": "APPROVED (user request, board)", "title": "Gap in the bridge railing", "visual": "studios/levels/cards/LVL-01_railing.png", "priority": "P1"}
+{"ts": "2026-11-17T13:29:26", "id": "ART-04", "studio": "art-studio", "action": "approve", "comment": "", "status": "APPROVED", "title": "Signboard text unreadable at the market"}
+{"ts": "2026-11-17T14:29:26", "id": "ART-04", "studio": "art-studio", "action": "priority", "comment": "", "status": "APPROVED", "title": "Signboard text unreadable at the market", "from": "P3", "to": "P2"}
+{"ts": "2026-11-17T16:29:26", "id": "AUD-01", "studio": "audio-studio", "action": "reject_result", "comment": "the bridge still sounds like stone", "status": "APPROVED, IN WORK (result rejected: rework)", "title": "Footsteps on wood sound like stone"}
+{"ts": "2026-11-17T16:59:26.000000", "id": "AUD-01", "studio": "audio-studio", "action": "question", "comment": "Does the rule also cover the bridge planks?", "status": "APPROVED, IN WORK (result rejected: rework)", "title": "Footsteps on wood sound like stone"}
+{"ts": "2026-11-17T17:29:26", "id": "AUD-02", "studio": "audio-studio", "action": "accept", "comment": "", "status": "ACCEPTED", "title": "Ambient wind loop clicks at the loop point"}
+{"ts": "2026-11-17T19:29:26", "id": "ART-02", "studio": "art-studio", "action": "accept", "comment": "", "status": "ACCEPTED", "title": "Torch glow too orange in the cave"}
+{"ts": "2026-11-17T21:59:26.000000", "id": "LVL-02", "studio": "levels-studio", "action": "question", "comment": "Will the wider entrance change the light inside?", "status": "IN WORK", "title": "Cave entrance too narrow for the camera"}

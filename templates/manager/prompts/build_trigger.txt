@@ -1,0 +1,15 @@
+{{TERM_BUILD}} trigger ({{PROJECT}}; cron for ~{{BUILD_TIME}}, recurring; the user's rule: <describe, e.g. "every night, gather what the
+studios made ready and build the next version">). Working folder: {{ROOT}}.
+Follow {{HUB}}/PUBLISH.md, section "{{TERM_MANAGER}} at the trigger":
+0. The backup step (every night, built or skipped), in the background.
+1. Skip check: no {{TERM_READY}} stamp newer than {{HUB}}/applied.json, no new other input, nothing installed live since the last
+   {{TERM_BUILD}} -> skip and say so in the morning. Don't start while {{HUB}}/BUILD_RUNNING exists, usage is at the halt threshold, or a
+   USER HOLD lock is held (`python {{HUB}}/queue/resq.py status`); then re-check every 30 min until <latest start time>.
+2. Label: the next round rNN and label (<describe the rule>); folder {{HUB}}/builds/rNN/.
+3. Brief: {{HUB}}/builds/rNN/BUILD_BRIEF.md from PUBLISH.md, the {{TERM_READY}}s ({{HUB}}/ready/*.md), the "FOR THE rNN BRIEF" notes in
+   {{HUB}}/manager/NEXT.md and the previous round's brief. Copy the {{TERM_READY}}s into {{HUB}}/builds/rNN/ready/.
+4. Write {{HUB}}/BUILD_RUNNING (round, label, start time). Spawn the {{TERM_BUILD}} subagent with the Agent tool (model <describe>,
+   effort <describe>; it runs in the background) with the prompt: "You are the {{TERM_BUILD}} agent for rNN. Follow
+   {{ROOT}}/{{HUB}}/builds/rNN/BUILD_BRIEF.md top to bottom; keep RESUME_BUILD.md current; report when done or halted."
+5. Arm the hang watchdog with Monitor on the {{TERM_BUILD}}'s logs (the loop must exit on its own within 30 min; re-arm it).
+6. One entry in NEXT.md: "<MM-DD HH:MM> rNN STARTED: label, inputs, brief path, subagent, watchdog".

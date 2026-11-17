@@ -1,0 +1,12 @@
+Morning after the {{TERM_BUILD}} ({{PROJECT}}). Run this when the {{TERM_BUILD}} subagent reports (or on a scheduled check if it has finished).
+Working folder: {{ROOT}}. Read {{HUB}}/builds/rNN/RESULT.md and RESUME_BUILD.md.
+1. LIVE: `python {{HUB}}/board/mark_live.py <label> --round rNN <ID> ...` for every card that shipped.
+   Each item the {{TERM_BUILD}} reverted: `python {{HUB}}/board/mark_live.py <label> --revert-to-work <ID> --reason "<why, short>"`.
+2. Write the applied stamps into {{HUB}}/applied.json (temp file + os.replace).
+3. Stop the hang watchdog. Make sure {{HUB}}/BUILD_RUNNING is gone.
+4. Resume the {{TERM_STUDIO}}s: tell each one that the {{TERM_BUILD}} is done, the shared resource is theirs again, and its own items' results
+   and faults (from RESULT.md). Lab copies taken from the old product are stale now: re-copy before judging. Any {{TERM_STUDIO}} that is
+   idle with approved work left gets a clear "resume" with a pointer to its notes.
+5. One short report to the user: where the {{TERM_BUILD}} is (<path / launcher / URL>), what went in per {{TERM_STUDIO}} (+ other inputs), gates,
+   top faults, anything reverted, the backup's one-line result. Attach one or two existing sheets (SendUserFile). Nothing else.
+6. NEXT.md entry: "<MM-DD HH:MM> rNN DONE: ...".

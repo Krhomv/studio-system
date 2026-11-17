@@ -1,0 +1,4 @@
+Halt straggler check ({{PROJECT}}; one-off cron 10 min after a HALT was sent, recurring false; {{HUB}}/manager/USAGE_HALT.md step 2).
+Call mcp__ccd_session_mgmt__list_sessions {"linked": true}. For each session you started that is still running, call
+mcp__ccd_session_mgmt__stop_session on it. Don't stop sessions you didn't start (message only), and don't kill running jobs or engines:
+they finish and release the queue themselves. Then one line to the user saying which sessions were stopped (or none), and stop.

@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio board</title>
+<style>
+:root{color-scheme:dark;--bg:#14161a;--panel:#1a1d22;--card:#1d2026;--card2:#252931;--line:#30353e;--fg:#e6e6e6;--dim:#9aa1ab;--faint:#636a75;
+--acc:#5b9dff;--need:#f0b24a;--ok:#4fc27e;--bad:#ef6a62;--work:#5b9dff;--mat:#0c0d10;--radius:8px;--ask:#b48cff;--p2:#e8964a}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select,input,textarea{font:inherit;color:inherit}
+button{background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.ok{background:color-mix(in srgb,var(--ok) 22%,var(--card2));border-color:var(--ok)}
+button.bad{background:color-mix(in srgb,var(--bad) 18%,var(--card2));border-color:var(--bad)}
+button.pri{background:color-mix(in srgb,var(--acc) 25%,var(--card2));border-color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+select,input,textarea{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 8px}
+textarea{width:100%;resize:vertical;min-height:52px}
+header{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:15px;margin:0 6px 0 0;font-weight:600}
+.tabs button{border-radius:6px 6px 0 0;border-bottom:none;background:transparent}
+.tabs button.on{background:var(--card2);border-color:var(--line);font-weight:600}
+.wait{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:10px;padding:1px 8px;font-size:12px;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.pill.p,.pill.r{border-color:var(--need);color:var(--need)}
+.sp{flex:1}
+.meta{color:var(--dim);font-size:12px}
+.issues{color:var(--need);cursor:help}
+main{padding:12px 14px 80px}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:start}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px;min-height:80px}
+.col h2{font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px;color:var(--dim);display:flex;gap:6px;align-items:center}
+.col h2 .n{margin-left:auto}
+.col.need h2{color:var(--fg)}
+.col.need{border-color:color-mix(in srgb,var(--need) 45%,var(--line))}
+.card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:7px 8px;margin-bottom:6px;cursor:pointer;display:flex;gap:7px}
+.card:hover{border-color:var(--acc)}
+.card.open{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.card.c-proposed,.card.c-result{border-left-color:var(--need)}
+.card.c-work{border-left-color:var(--work)}
+.card.c-done,.card.c-live{border-left-color:var(--ok)}
+.card.c-rejected{border-left-color:var(--bad)}
+.card.c-closed{border-left-color:var(--faint)}
+.card input{margin:2px 0 0}
+.card .b{min-width:0;flex:1}
+.card .top{display:flex;gap:6px;align-items:baseline;font-size:12px}
+.card .id{font-weight:600;font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+.card .st{color:var(--dim);font-size:11px;margin-top:2px}
+.card .t{margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card.hasask{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ask) 55%,transparent)}
+.card.stale{background:color-mix(in srgb,var(--need) 7%,var(--card))}
+.card.stale .age{color:var(--need)}
+.studio{color:var(--dim);font-size:11px}
+.pr{font-size:10px;font-weight:700;border-radius:6px;padding:0 5px;white-space:nowrap;line-height:15px}
+.pr1{background:var(--bad);color:#1a0f0f}.pr2{background:var(--p2);color:#1a1208}.pr4{color:var(--faint);border:1px solid var(--faint)}
+.pick{display:flex;gap:4px;align-items:center;margin-top:6px;font-size:12px;color:var(--dim);flex-wrap:wrap}
+.pick button,#moreMenu button.pb{padding:1px 8px;font-size:11.5px}
+.pick button.on.p1,#moreMenu .pb.on.p1{background:var(--bad);color:#1a0f0f;border-color:var(--bad)}
+.pick button.on.p2,#moreMenu .pb.on.p2{background:var(--p2);color:#1a1208;border-color:var(--p2)}
+.pick button.on.p3,#moreMenu .pb.on.p3{background:var(--card2);border-color:var(--acc)}
+.pick button.on.p4,#moreMenu .pb.on.p4{background:var(--card2);border-color:var(--faint);color:var(--dim)}
+#moreMenu{display:inline-flex;gap:4px;align-items:center}
+.spick{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.spick button{display:inline-flex;gap:6px;align-items:center;padding:5px 10px}
+.spick button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 22%,var(--card2));font-weight:600}
+#hiP.on{background:color-mix(in srgb,var(--bad) 22%,var(--card2));border-color:var(--bad)}
+.akb{background:var(--ask);color:#16121f;font-weight:700;border-radius:8px;padding:0 7px;font-size:10.5px;white-space:nowrap;margin-left:auto}
+.pill.ak{background:var(--ask);color:#16121f;border-color:var(--ask);font-weight:700;cursor:pointer}
+.pill.ak0{color:var(--faint);cursor:pointer}
+.nt{border-left:2px solid var(--line);padding:3px 0 7px 10px;margin-left:3px}
+.nt .hd{font-size:11px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap}
+.nt .hd b{color:var(--fg);font-weight:600}
+.nt .tx{white-space:pre-wrap;word-break:break-word;margin-top:1px}
+.nt.u{border-left-color:var(--need);background:color-mix(in srgb,var(--need) 8%,transparent);border-radius:0 4px 4px 0}
+.nt.u .hd b{color:var(--need)}
+.nt.a{border-left-color:var(--ok)}
+.nt.a .hd b{color:var(--ok)}
+.nt.ak{border-left-color:var(--ask);background:color-mix(in srgb,var(--ask) 9%,transparent);border-radius:0 4px 4px 0}
+.nt.ak .hd b{color:var(--ask)}
+.nt.ak.wd{border-left-color:var(--faint);background:transparent;opacity:.7}
+.nt.ak.wd .hd b{color:var(--dim)}
+.nt.bd{border-left-color:var(--ok)}
+.nt.bd .hd b{color:var(--ok)}
+.dl{font-size:10.5px;border-radius:8px;padding:0 6px;border:1px solid var(--line);white-space:nowrap}
+.dl.waiting{color:var(--need);border-color:var(--need)}
+.dl.passed{color:var(--work);border-color:var(--work)}
+.dl.answered{color:var(--ok);border-color:var(--ok)}
+.dl.askw{color:var(--ask);border-color:var(--ask)}
+.rb{margin-top:6px}
+.rb textarea{min-height:40px}
+.rb .row{display:flex;gap:6px;margin-top:5px;justify-content:flex-end}
+.rb .opt{margin:0 6px 6px 0;border-color:var(--ask)}
+.rb .opt:hover{background:color-mix(in srgb,var(--ask) 20%,var(--card2))}
+.qi{background:var(--panel);border:1px solid color-mix(in srgb,var(--ask) 45%,var(--line));border-radius:var(--radius);padding:10px 12px;margin-bottom:8px}
+.qi .hd{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--dim);flex-wrap:wrap}
+.qi .hd a{color:var(--acc);cursor:pointer;font-family:ui-monospace,Consolas,monospace;font-weight:600}
+.qi .tx{margin-top:4px;white-space:pre-wrap;word-break:break-word;font-size:13.5px}
+.stc-proposed,.stc-result{color:var(--need)}.stc-work{color:var(--work)}.stc-done,.stc-live{color:var(--ok)}.stc-rejected{color:var(--bad)}
+.stc-closed{color:var(--faint)}.stc-backlog{color:var(--dim)}
+.pill.lv{color:var(--ok);border-color:var(--ok);font-size:10.5px;padding:0 6px}
+.pill.cl{color:var(--dim);border-color:var(--faint);font-size:10.5px;padding:0 6px}
+.pill.bl{color:#b9a7e0;border-color:#7d6aa8;font-size:10.5px;padding:0 6px}
+.livegrp{margin-top:10px}
+.livegrp h4{margin:0 0 6px;font-size:12px;color:var(--dim);display:flex;gap:8px;align-items:center}
+.livegrp h4 b{color:var(--ok)}
+.rsn{color:var(--dim)}
+.mv{font-size:11.5px;margin-top:2px;color:var(--dim)}
+.mv a{color:var(--acc);cursor:pointer;font-family:ui-monospace,Consolas,monospace}
+.more{margin-left:auto;display:inline-flex;gap:6px}
+.more .mbtn{padding:2px 9px;letter-spacing:1px}
+.rej{margin-top:12px}
+.rej summary{cursor:pointer;color:var(--dim)}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;margin-top:8px}
+.batch{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:6;background:var(--panel);border:1px solid var(--acc);border-radius:var(--radius);padding:8px 10px;display:flex;gap:8px;align-items:center;box-shadow:0 6px 24px #0008;width:min(720px,calc(100% - 32px));flex-wrap:wrap}
+.batch input{flex:1;min-width:80px}
+aside{position:fixed;top:0;right:0;bottom:0;width:min(600px,100%);background:var(--panel);border-left:1px solid var(--line);z-index:8;overflow:auto;padding:12px 16px 24px;box-shadow:-8px 0 30px #0006}
+aside .x{float:right}
+aside h3{margin:0 0 2px;font-size:15px}
+aside .sub{color:var(--dim);margin-bottom:8px}
+.f{display:grid;grid-template-columns:72px 1fr;gap:2px 10px;padding:4px 0;border-top:1px solid var(--line)}
+.f .k{color:var(--dim);font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.f .v{white-space:pre-wrap;word-break:break-word}
+.f .v.empty{color:var(--faint)}
+.imgs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.imgs a{display:block;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--mat);padding:4px;cursor:zoom-in}
+.imgs img{display:block;max-width:100%;max-height:180px}
+.imgs .miss{color:var(--faint);font-family:ui-monospace,Consolas,monospace;font-size:11px;padding:3px 6px;border:1px dashed var(--line);border-radius:4px}
+.cap{font-size:11px;color:var(--dim);padding:3px 1px 0;background:var(--mat)}
+.act{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.act .row{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.msg{margin-top:8px;padding:6px 8px;border-radius:6px;display:none}
+.msg.err{display:block;background:color-mix(in srgb,var(--bad) 18%,transparent);border:1px solid var(--bad)}
+.msg.ok{display:block;background:color-mix(in srgb,var(--ok) 15%,transparent);border:1px solid var(--ok)}
+.msg.note{display:block;background:color-mix(in srgb,var(--need) 15%,transparent);border:1px solid var(--need)}
+.lb{position:fixed;inset:0;background:rgba(8,9,11,.96);z-index:20;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:10px}
+.lb img{max-width:100%;max-height:100%;object-fit:contain}
+.lb .cap2{position:fixed;bottom:6px;left:10px;color:#ccc;font-size:12px}
+.modal{position:fixed;inset:0;background:#0009;z-index:15;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px}
+.modal form{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;width:min(560px,100%)}
+.modal label{display:block;margin-top:8px;color:var(--dim);font-size:12px}
+.modal input,.modal select{width:100%}
+.req{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin-bottom:6px}
+.req>.h{display:flex;gap:8px;padding:7px 10px;cursor:pointer;align-items:baseline}
+.req>.h:hover{background:var(--card)}
+.req .id{font-weight:600;font-family:ui-monospace,Consolas,monospace;min-width:34px}
+.req .s{color:var(--dim);font-size:12px;margin-left:auto;max-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.req .body{padding:0 10px 8px}
+.sec{margin:14px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim)}
+.hidden{display:none!important}
+.empty{color:var(--faint);font-size:12px;padding:4px}
+.gstrip{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;padding:5px 14px;background:var(--card);border-bottom:1px solid var(--line);font-size:12px;color:var(--dim);cursor:pointer}
+.gstrip b{color:var(--fg);font-weight:600}
+.gstrip .gh{font:inherit;font-size:11.5px;padding:1px 9px;border-radius:5px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.gstrip .gh.rel{border-color:var(--need);color:var(--need)}.gstrip .gh.pend{border-color:var(--work);color:var(--work)}
+.amb{color:var(--need)}.red{color:var(--bad)}.grn{color:var(--ok)}.blu{color:var(--work)}
+.meter{display:inline-block;width:60px;height:5px;background:var(--card2);border-radius:3px;vertical-align:middle;overflow:hidden;margin:0 4px}
+.meter i{display:block;height:100%;background:var(--work)}
+.meter.l1 i{background:var(--need)}.meter.l2 i{background:var(--bad)}
+.lbar{white-space:nowrap}
+.lbar .meter{width:54px;height:6px}
+.lbar .v{color:var(--fg)}
+.lbar .v.l1{color:var(--need)}.lbar .v.l2{color:var(--bad)}
+.sysrow{display:grid;grid-template-columns:44px 1fr auto;gap:6px;align-items:center;margin-top:6px;font-size:12.5px}
+.sysrow .meter{width:100%;height:7px;margin:0}
+.userhold{background:color-mix(in srgb,var(--need) 22%,var(--card));border-bottom:1px solid var(--need);color:var(--need);font-weight:700;padding:7px 14px;font-size:14px;letter-spacing:.02em}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.gbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+.gbox h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim)}
+.gbox .big{font-size:20px;font-weight:600}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:3px 10px;font-size:12.5px}
+.kv .k{color:var(--dim)}
+.tk{display:grid;grid-template-columns:22px 1fr auto;gap:2px 8px;padding:5px 0;border-top:1px solid var(--line);font-size:12.5px}
+.tk:first-of-type{border-top:none}
+.tk .n{color:var(--faint)}
+.tk .w{color:var(--dim);white-space:nowrap}
+.tk .j{grid-column:2/4;color:var(--dim);font-size:12px;word-break:break-word}
+.tag{font-size:10.5px;border:1px solid var(--line);border-radius:8px;padding:0 6px;margin-left:4px;color:var(--dim)}
+.bar{height:4px;background:var(--card2);border-radius:2px;margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--work);border-radius:2px}
+.card.c-done .bar i{background:var(--ok)}
+.age{color:var(--faint);font-size:11px;margin-top:3px;display:flex;gap:8px}
+.age .pc{margin-left:auto;color:var(--dim)}
+.tl{margin-top:12px;padding-top:8px;border-top:1px solid var(--line)}
+.tl h4{margin:0 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--dim);display:flex;gap:8px;align-items:center}
+.tl h4 .bar{flex:1;margin:0;max-width:200px}
+.ask{margin:8px 0 10px;padding:8px;border:1px solid color-mix(in srgb,var(--need) 45%,var(--line));border-radius:6px;background:var(--card)}
+.ask textarea{min-height:44px}
+.ask .row{display:flex;gap:8px;align-items:center;margin-top:6px}
+.ask .row .meta{flex:1}
+.qb{color:var(--need);border:1px solid var(--need);border-radius:8px;padding:0 6px;font-size:10.5px;margin-left:auto;white-space:nowrap}
+.pill.q{border-color:var(--need);color:var(--need)}
+.pill.q0{color:var(--faint)}
+.si{display:inline-flex;width:14px;height:14px;flex:0 0 14px;vertical-align:-2px}
+.si svg{width:14px;height:14px;display:block}
+h3 .si{width:16px;height:16px;flex-basis:16px;vertical-align:-3px;margin-right:2px}
+h3 .si svg{width:16px;height:16px}
+.sf{display:inline-flex;gap:3px;align-items:center;flex-wrap:wrap}
+.sf button{padding:3px 6px;display:inline-flex;align-items:center;gap:4px;background:transparent;border-color:transparent}
+.sf button.on{background:var(--card2);border-color:var(--line)}
+.sf button:hover{border-color:var(--acc)}
+.wrap{display:flex;align-items:flex-start}
+.wrap>main{flex:1;min-width:0}
+@media (min-width:1280px){
+  aside{position:sticky;top:var(--hdr,46px);height:calc(100vh - var(--hdr,46px));width:min(560px,40vw);flex:0 0 min(560px,40vw);
+        right:auto;bottom:auto;z-index:4;box-shadow:none;border-top:1px solid var(--line)}
+}
+.mb{margin-bottom:14px}
+.mb .ch{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:5px 0;border-top:1px solid var(--line);font-size:12.5px}
+.mb .ch a{color:var(--acc);cursor:pointer;font-family:ui-monospace,Consolas,monospace;font-weight:600}
+.mb .ch.na{background:color-mix(in srgb,var(--need) 8%,transparent)}
+.mb pre{background:var(--mat);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-size:11.5px;overflow:auto;max-height:260px;margin:6px 0 0;white-space:pre-wrap;word-break:break-word}
+.mb .act2{display:flex;gap:8px;margin-top:10px;align-items:center}
+.mb .act2 input{flex:1;min-width:0}
+.st-open{color:var(--work)}.st-merging{color:var(--need)}.st-merged{color:var(--ok)}.st-failed{color:var(--bad)}
+@media (max-width:600px){main{padding:10px 10px 90px}header{padding:8px 10px}.f{grid-template-columns:60px 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="ttl">Studio board</h1>
+  <div class="tabs" id="tabs"></div>
+  <div class="wait" id="wait"></div>
+  <span class="sp"></span>
+  <span class="meta" id="sfLbl">Studio</span><span class="sf" id="studioF"></span><button id="hiP" data-hip title="show only P1 / P2">P1 / P2 only</button>
+  <button class="pri" id="newBtn">+ New request</button>
+  <button id="ntBtn" title="desktop alerts">alerts</button>
+  <span class="meta" id="stamp"></span>
+  <span class="issues hidden" id="issues">&#9888;</span>
+</header>
+<div id="userhold" class="userhold hidden"></div>
+<div id="gstrip" class="gstrip hidden" title="click for details"></div>
+<div class="wrap">
+<main>
+  <section id="tab-tasks">
+    <div class="board" id="board"></div>
+    <details class="rej" id="blWrap"><summary id="blSum">Backlog</summary><div class="list" id="blList"></div></details>
+    <details class="rej" id="liveWrap"><summary id="liveSum">Live</summary><div id="liveList"></div></details>
+    <details class="rej" id="rejWrap"><summary id="rejSum">Closed / rejected</summary><div class="list" id="rejList"></div></details>
+  </section>
+  <section id="tab-reqs" class="hidden">
+    <div class="gbox mb hidden" id="mb">
+      <h3 id="mbTitle">Bundle</h3>
+      <div id="mbBody"><div class="meta">loading...</div></div>
+      <div class="act2 hidden" id="mbAct">
+        <input id="mbC" maxlength="2000" placeholder="your words (optional)">
+        <button class="ok" id="mbGo">Merge this bundle</button>
+      </div>
+      <div class="msg" id="mbMsg"></div>
+    </div>
+    <div id="reqs"></div>
+  </section>
+  <section id="tab-asks" class="hidden"><div class="meta" id="asksIntro" style="margin-bottom:8px"></div><div id="asks"></div></section>
+  <section id="tab-queue" class="hidden"><div id="queue"></div></section>
+</main>
+<aside class="hidden" id="det">
+  <button class="x" id="detX" title="Close (Esc)">&#10005;</button>
+  <div id="detHead"></div>
+  <div class="ask">
+    <textarea id="askIn" maxlength="4000"></textarea>
+    <div class="row"><span class="meta">Ctrl+Enter sends. Delivery shows in the timeline below.</span><button class="pri" id="askGo">Send</button></div>
+    <div class="msg" id="askMsg"></div>
+  </div>
+  <div class="msg" id="detNote"></div>
+  <div id="detBody"></div>
+  <div class="act" id="detAct">
+    <label class="meta" for="cmt" id="cmtLbl">Your words (optional)</label>
+    <textarea id="cmt" placeholder="e.g. yes, but keep the left side as it is"></textarea>
+    <div class="row" id="btns"></div>
+    <div class="msg" id="detMsg"></div>
+  </div>
+  <div class="tl">
+    <h4 id="tlHead">Timeline</h4>
+    <div id="tlList" style="margin-top:8px"></div>
+  </div>
+</aside>
+</div>
+
+<div class="batch hidden" id="batch">
+  <span id="batchN"></span>
+  <input id="batchC" placeholder="your words (optional, goes on every selected task)">
+  <button class="ok" id="batchGo">Approve selected</button>
+  <button class="pri" id="batchBl" title="park the selected proposals in the backlog">Backlog selected</button>
+  <button id="batchClr">Clear</button>
+</div>
+
+<div class="modal hidden" id="newM">
+  <form id="newF" autocomplete="off">
+    <h3 style="margin:0 0 4px">New request</h3>
+    <div class="meta" id="newIntro"></div>
+    <label id="newStudioLbl">Studio</label><div class="spick" id="spick"></div>
+    <label>Priority</label><div class="pick" id="ppick" style="margin-top:4px"></div>
+    <label>Title <input name="title" maxlength="160" required placeholder="short title"></label>
+    <label>What <textarea name="what" rows="4" required placeholder="what you want done"></textarea></label>
+    <label>Image path inside the project (optional) <input name="visual" placeholder="e.g. studios/art/cards/my_marked_shot.png"></label>
+    <div class="msg" id="newMsg"></div>
+    <div class="row" style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button type="button" id="newCancel">Cancel</button><button class="ok" type="submit">Add request</button></div>
+  </form>
+</div>
+
+<div class="lb hidden" id="lb"><img id="lbImg" alt=""><div class="cap2" id="lbCap"></div></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const S = {drafts:{}, hip:false, tasks:null, reqs:null, mb:null, q:null, open:null, openHash:null, sel:new Set(), studio:"", tab:"tasks", reqOpen:new Set(), busy:false};
+let C = null;                 // /api/config
+let LS = "sb.";               // localStorage prefix (per app id)
+const ls = {get: k => { try { return localStorage.getItem(LS + k); } catch (e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(LS + k, v); } catch (e) {} }};
+
+async function api(path, body) {
+  const opt = body ? {method:"POST", headers:{"Content-Type":"application/json","X-Studio-Board":"1"}, body:JSON.stringify(body)} : {};
+  const r = await fetch(path, opt);
+  let j = {};
+  try { j = await r.json(); } catch (e) { j = {ok:false, error:"HTTP " + r.status}; }
+  j._status = r.status;
+  return j;
+}
+
+// ---------------------------------------------------------------- config-driven words
+const T = k => (C && C.terms && C.terms[k]) || k;
+const SL = k => (C && C.statuses[k] && C.statuses[k].label) || k;          // status label
+const SW = k => (C && C.statuses[k] && C.statuses[k].word) || k;           // status word in the register
+const ON = k => !C || !C.statuses[k] || C.statuses[k].enabled !== false;
+const PN = n => (C && C.priority.names[String(n)]) || ["", "urgent", "high", "normal", "low"][n];
+const PD = () => (C && C.priority.default) || 3;
+const cap = s => String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1);
+const panelOn = k => !!(C && C.panels[k] && C.panels[k].enabled);
+function cols() {
+  return [["proposed", SL("PROPOSED"), "needs you"], ["work", SL("APPROVED") + " / " + SL("IN WORK"), ""],
+          ["result", SL("RESULT"), "needs you"], ["done", SL("ACCEPTED") + (ON("HANDOFF") ? " / " + SL("HANDOFF") : ""), ""]];
+}
+
+// ---------------------------------------------------------------- icons (by name in board.config.json)
+const GLYPH = {
+  brush: '<path d="M10.5 2.5l3 3-5.5 5.5-3-3z"/><path d="M5 8c-1.6 0-2.6 1-2.6 2.6 0 1.1-.4 1.9-.9 2.4 2.3.3 4.6-.5 5-2.6"/>',
+  leaf: '<path d="M3 13C3 7 7 3 13.5 2.5 13.5 9 9.5 13 3 13Z"/><path d="M3 13 9.5 6.5"/>',
+  sun: '<circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.8M8 12.7v1.8M1.5 8h1.8M12.7 8h1.8M3.4 3.4l1.3 1.3M11.3 11.3l1.3 1.3M3.4 12.6l1.3-1.3M11.3 4.7l1.3-1.3"/>',
+  cube: '<path d="M8 1.8 13.5 4.8v6.4L8 14.2 2.5 11.2V4.8Z"/><path d="M2.5 4.8 8 7.8l5.5-3M8 7.8v6.4"/>',
+  gauge: '<path d="M2.5 11.5a5.5 5.5 0 1 1 11 0"/><path d="M8 11.5 10.8 6.8"/><circle cx="8" cy="11.5" r=".9" fill="currentColor" stroke="none"/><path d="M4 7.2l.8.6M12 7.2l-.8.6M8 4.2v1"/>',
+  parcel: '<rect x="2.5" y="6.5" width="11" height="7" rx="1"/><path d="M2.5 9.3h11M8 6.5v7"/><path d="M8 1.5v3.4M6.4 3.4 8 5l1.6-1.6"/>',
+  megaphone: '<path d="M2.5 6.3h2.6l6.4-3.3v10L5.1 9.7H2.5Z"/><path d="M5.1 9.7 6 13h1.7l-.7-3.3"/><path d="M13.3 6.4v3.2"/>',
+  spray: '<rect x="4" y="6" width="6" height="8.5" rx="1"/><path d="M5.5 6V4.5h3V6M6.5 4.5V3h1.6"/><circle cx="12" cy="2.8" r=".7" fill="currentColor" stroke="none"/><circle cx="13.7" cy="4.5" r=".7" fill="currentColor" stroke="none"/><circle cx="12.3" cy="6.1" r=".7" fill="currentColor" stroke="none"/>',
+  tiles: '<rect x="2" y="3" width="12" height="10" rx="1"/><path d="M2 6.3h12M2 9.7h12M6 3v3.3M10 6.3v3.4M6 9.7V13"/>',
+  music: '<path d="M6 12V3.5l7-1.5v8.5"/><circle cx="4.3" cy="12" r="1.7"/><circle cx="11.3" cy="10.5" r="1.7"/>',
+  film: '<rect x="2" y="3" width="12" height="10" rx="1"/><path d="M5 3v10M11 3v10M2 6h3M2 10h3M11 6h3M11 10h3"/>',
+  code: '<path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5M9 3 7 13"/>',
+  bug: '<rect x="5" y="5" width="6" height="8" rx="3"/><path d="M8 5V3.5M6 2.8l1 1.5M10 2.8 9 4.3M5 8H2.5M13.5 8H11M5 11H3M13 11h-2M8 7v6"/>',
+  book: '<path d="M2.5 3.5h4A1.5 1.5 0 0 1 8 5v8a1.5 1.5 0 0 0-1.5-1.5h-4zM13.5 3.5h-4A1.5 1.5 0 0 0 8 5v8a1.5 1.5 0 0 1 1.5-1.5h4z"/>',
+  pen: '<path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/><path d="M9.5 4l2.5 2.5"/>',
+  chart: '<path d="M2.5 13.5h11"/><path d="M4.5 11V8M8 11V4.5M11.5 11V6.5"/>',
+  map: '<path d="M2 4l4-1.5 4 1.5 4-1.5v9.5l-4 1.5-4-1.5-4 1.5z"/><path d="M6 2.5v9.5M10 4v9.5"/>',
+  wrench: '<path d="M10.5 2.5a3 3 0 0 0-2.8 4L2.5 11.7l1.8 1.8 5.2-5.2a3 3 0 0 0 4-2.8l-1.8 1.8-2-.5-.5-2z"/>',
+  globe: '<circle cx="8" cy="8" r="5.5"/><path d="M2.5 8h11M8 2.5c-2 2-2 9 0 11M8 2.5c2 2 2 9 0 11"/>',
+  star: '<path d="M8 2l1.8 3.8 4.2.5-3.1 2.9.8 4.1L8 11.3 4.3 13.3l.8-4.1L2 6.3l4.2-.5z"/>',
+};
+function stu(name) {          // configured studio for a key / owner / queue owner name
+  const n = String(name || "").toLowerCase();
+  if (!C || !n) return null;
+  return C.studios.find(s => s.key === n) || C.studios.find(s => s.owner.toLowerCase() === n) || C.studios.find(s => s.queue_owner.toLowerCase() === n) || null;
+}
+function ico(name, label) {
+  const s = stu(name), g = s && GLYPH[s.icon];
+  const tip = esc(label || (s ? s.label : name) || "unknown");
+  const body = g || '<circle cx="8" cy="8" r="3" fill="currentColor" stroke="none"/>';
+  return `<span class="si" style="color:${esc(s ? s.color : "#7c8590")}" title="${tip}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-label="${tip}">${body}</svg></span>`;
+}
+const keyOf = b => b.skey || String(b.studio || "").toLowerCase();
+
+// ---------------------------------------------------------------- load
+async function load() {
+  try {
+    const calls = [api("/api/tasks")];
+    calls.push(panelOn("requests") ? api("/api/requests") : Promise.resolve(null));
+    calls.push(panelOn("bundle") ? api("/api/bundle") : Promise.resolve(null));
+    const [t, q, mb] = await Promise.all(calls);
+    if (t.blocks) S.tasks = t;
+    if (q && q.items) S.reqs = q;
+    if (mb && "exists" in mb) S.mb = mb;
+    $("#stamp").textContent = "updated " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+    $("#stamp").style.color = "";
+  } catch (e) {
+    $("#stamp").textContent = "server not answering"; $("#stamp").style.color = "var(--bad)";
+  }
+  render();
+  try { ntCheck(); } catch (x) {}
+}
+
+function ago(ts) {
+  if (!ts) return "";
+  const t = new Date(ts).getTime(); if (isNaN(t)) return ts;
+  const m = Math.max(0, Math.round((Date.now() - t) / 60000));
+  if (m < 1) return "just now";
+  if (m < 60) return m + " min ago";
+  const h = Math.floor(m / 60);
+  if (h < 48) return h + " h" + (m % 60 && h < 6 ? " " + (m % 60) + " min" : "") + " ago";
+  return Math.floor(h / 24) + " days ago";
+}
+const staleMs = () => ((C && C.stale_hours) || 3) * 3600 * 1000;
+function isStale(b) {
+  const p = b.progress || {};
+  if (b.stage !== "IN WORK" || !p.last_studio) return false;
+  return Date.now() - new Date(p.last_studio).getTime() > staleMs();
+}
+function bar(pct) { return pct == null ? "" : `<div class="bar" title="${pct} %"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div>`; }
+function visible(b) { return (!S.studio || keyOf(b) === S.studio) && (!S.hip || (b.priority || PD()) <= 2); }
+function prioPill(b) { const p = b.priority || PD(); return p === 3 ? "" : `<span class="pr pr${p}" title="priority P${p} (${esc(PN(p))})">P${p}</span>`; }
+function prioButtons(b, cls) { return [1, 2, 3, 4].map(n => `<button class="${cls} p${n} ${(b.priority || PD()) === n ? "on" : ""}" data-prio="${n}" title="P${n} ${esc(PN(n))}">P${n}</button>`).join(""); }
+async function setPrio(n) {
+  const b = S.tasks && S.tasks.blocks.find(x => x.id === S.open), m = $("#detMsg");
+  if (!b || S.busy || (b.priority || PD()) === n && b.fields.priority) return;
+  S.busy = true;
+  const r = await api("/api/priority", {id:b.id, hash:b.hash, level:"P" + n});
+  S.busy = false; S.openHash = null;
+  m.className = r.ok ? "msg ok" : "msg err"; m.textContent = r.ok ? `${b.id}: priority P${n} (${PN(n)}). Logged for the ${T("manager")}.` : (r.error || "failed");
+  $("#btns").dataset.k = "";
+  await load();
+}
+
+// ---------------------------------------------------------------- render
+function render() {
+  if (!S.tasks || !C) return;
+  const blocks = S.tasks.blocks;
+  if (S.studio && !C.studios.some(s => s.key === S.studio)) S.studio = "";
+  $("#studioF").innerHTML = `<button data-sf="" class="${S.studio ? "" : "on"}" title="all ${esc(T("studios"))}">all</button>` +
+    C.studios.map(s => `<button data-sf="${esc(s.key)}" class="${S.studio === s.key ? "on" : ""}" title="${esc(s.label)}">${ico(s.key)}</button>`).join("");
+  const np = blocks.filter(b => b.column === "proposed").length, nr = blocks.filter(b => b.column === "result").length;
+  const nq = blocks.filter(b => b.progress && b.progress.open_question).length;
+  const nAsk = (S.tasks.open_asks || []).length;
+  $("#wait").innerHTML = `<span class="pill p" title="${esc(SW("PROPOSED"))}: approve or reject">${np} to approve</span><span class="pill r" title="${esc(SW("RESULT"))}: accept or send back">${nr} to accept</span><span class="pill ${nq ? "q" : "q0"}" title="your questions with no ${esc(T("studio"))} note after them yet">${nq} question${nq === 1 ? "" : "s"} open</span>` +
+    `<span class="pill ${nAsk ? "ak" : "ak0"}" data-tab="asks" title="questions the ${esc(T("studios"))} asked you">${nAsk} question${nAsk === 1 ? "" : "s"} for you</span>`;
+  document.title = (np + nr + nAsk ? `(${np + nr + nAsk}) ` : "") + C.project;
+  const iss = S.tasks.issues || [];
+  $("#issues").classList.toggle("hidden", !iss.length);
+  $("#issues").title = "Parser notes:\n" + iss.join("\n");
+  for (const id of [...S.sel]) { const b = blocks.find(x => x.id === id); if (!b || b.column !== "proposed") S.sel.delete(id); }
+  const vis = blocks.filter(visible);
+  $("#board").innerHTML = cols().map(([c, name, need]) => {
+    const list = vis.filter(b => b.column === c).sort((x, y) => (x.priority || PD()) - (y.priority || PD()) || x.line - y.line);
+    return `<div class="col ${need ? "need" : ""}"><h2>${esc(name)}${need ? ' <span class="pill ' + (c === "result" ? "r" : "p") + '">' + need + "</span>" : ""}<span class="n">${list.length}</span></h2>${list.map(card).join("") || '<div class="empty">nothing</div>'}</div>`;
+  }).join("");
+  const live = vis.filter(b => b.column === "live"), groups = {};
+  for (const b of live) (groups[b.live_label || "?"] = groups[b.live_label || "?"] || []).push(b);
+  const order = Object.keys(groups).sort((x, y) => {
+    const tx = groups[x].map(b => b.live_ts || "").sort().pop(), ty = groups[y].map(b => b.live_ts || "").sort().pop();
+    return (ty || "").localeCompare(tx || "") || y.localeCompare(x);
+  });
+  $("#liveWrap").classList.toggle("hidden", !ON("LIVE"));
+  $("#liveSum").textContent = `${SL("LIVE")} (${live.length}${order.length ? " in " + order.length + " " + T("build") + (order.length > 1 ? "s" : "") : ""})`;
+  $("#liveList").innerHTML = order.map(k => `<div class="livegrp"><h4><b>${esc(k)}</b><span>${groups[k].length} item${groups[k].length === 1 ? "" : "s"}</span></h4><div class="list">${groups[k].map(card).join("")}</div></div>`).join("") || `<div class="empty">nothing ${esc(SL("LIVE").toLowerCase())} yet</div>`;
+  const bl = vis.filter(b => b.column === "backlog").sort((x, y) => (x.priority || PD()) - (y.priority || PD()) || x.line - y.line);
+  $("#blWrap").classList.toggle("hidden", !ON("BACKLOG"));
+  $("#batchBl").classList.toggle("hidden", !ON("BACKLOG"));
+  $("#blSum").textContent = `${SL("BACKLOG")} (${bl.length})`;
+  $("#blList").innerHTML = bl.map(card).join("") || '<div class="empty">nothing parked</div>';
+  const rej = vis.filter(b => b.column === "rejected" || b.column === "closed");
+  $("#rejSum").textContent = `${SL("CLOSED")} / ${SL("REJECTED").toLowerCase()} (${rej.length})`;
+  $("#rejList").innerHTML = rej.map(card).join("") || '<div class="empty">nothing</div>';
+  renderBatch();
+  renderDetail();
+  renderReqs();
+  renderMb();
+  renderAsks();
+  renderQueue();
+}
+
+const hm = ts => ts ? String(ts).replace("T", " ").slice(11, 16) : "";
+const hmd = ts => ts ? String(ts).replace("T", " ").slice(5, 16) : "";
+function mbLine() {
+  const m = S.mb;
+  if (!m || !m.enabled) return "";
+  const title = (C.panels.bundle.title || "bundle").toLowerCase();
+  if (!m.exists) return `<span data-tab="reqs">${m.error ? `<span class="red">${esc(title)}: file unreadable</span>` : "no open " + esc(title)}</span>`;
+  const n = (m.changes || []).length;
+  const st = m.pending ? '<span class="amb">merge requested</span>' : `<span class="st-${esc(m.state)}">${esc(m.state)}</span>`;
+  return `<span data-tab="reqs">${esc(title)} <b>${esc(m.name)}</b> &middot; ${n} change${n === 1 ? "" : "s"} &middot; ${st}</span>`;
+}
+function renderMb() {
+  const m = S.mb, body = $("#mbBody"), act = $("#mbAct");
+  $("#mb").classList.toggle("hidden", !panelOn("bundle"));
+  if (!m || !m.enabled) return;
+  const owner = m.owner || C.panels.bundle.owner || "its owner";
+  if (!m.exists) {
+    body.innerHTML = m.error ? `<div class="red">${esc(m.error)}</div>` : `<div class="meta">No open bundle (${esc(owner)} has not written bundle.json yet).</div>`;
+    act.classList.add("hidden"); return;
+  }
+  const ids = new Set(((S.tasks && S.tasks.blocks) || []).map(b => b.id));
+  const na = (m.changes || []).filter(c => !c.accepted).length;
+  let h = `<div class="kv">
+    <div class="k">name</div><div><b>${esc(m.name)}</b>${m.title ? ' <span class="meta">' + esc(m.title) + "</span>" : ""}</div>
+    <div class="k">base</div><div>${esc(m.base) || "?"}</div>
+    <div class="k">opened</div><div>${esc(hmd(m.opened)) || "?"}</div>
+    <div class="k">state</div><div><b class="st-${esc(m.state)}">${esc(m.state)}</b>${m.state_ts ? ` <span class="meta">since ${esc(hmd(m.state_ts))}</span>` : ""}${m.merged_as ? ` &middot; merged as <b>${esc(m.merged_as)}</b>` : ""}</div>
+    ${m.note ? `<div class="k">note</div><div>${esc(m.note)}</div>` : ""}</div>`;
+  if (m.merge_request && (m.pending || m.state !== "open")) {
+    const r = m.merge_request;
+    const dl = r.delivery === "passed" ? `<span class="dl passed">passed to ${esc(owner)}</span>` : `<span class="dl waiting">waiting for the ${esc(T("manager"))}</span>`;
+    if (m.pending) h += `<div class="msg note" style="display:block">Merge requested ${esc(hm(r.ts))}, waiting for ${esc(owner)} ${dl}${r.comment ? `<div class="meta">your words: ${esc(r.comment)}</div>` : ""}</div>`;
+    else h += `<div class="meta" style="margin-top:6px">Merge requested ${esc(hmd(r.ts))} ${dl}</div>`;
+  }
+  h += `<div style="margin-top:8px">${(m.changes || []).map(c => `<div class="ch ${c.accepted ? "" : "na"}">${ids.has(c.id) ? `<a data-card="${esc(c.id)}">${esc(c.id)}</a>` : `<span>${esc(c.id) || "?"}</span>`}<span>${esc(c.what)}</span><span class="${c.accepted ? "grn" : "amb"}">${c.accepted ? "accepted" : "not accepted yet"}</span></div>`).join("") || '<div class="meta">no changes yet</div>'}</div>`;
+  if (na) h += `<div class="amb" style="margin-top:4px;font-size:12px">${na} change${na === 1 ? " is" : "s are"} not accepted yet.</div>`;
+  if (m.log_tail) h += `<div class="meta" style="margin-top:8px">merge log (last ${m.log_tail.length} lines): ${esc(m.merge_log)}</div><pre>${esc(m.log_tail.join("\n"))}</pre>`;
+  else if (m.log_note) h += `<div class="meta" style="margin-top:6px">${esc(m.log_note)}</div>`;
+  body.innerHTML = h;
+  act.classList.toggle("hidden", m.state !== "open");
+  $("#mbGo").disabled = !m.can_merge || S.busy;
+  $("#mbGo").title = m.can_merge ? `Tell ${owner} to merge this bundle (next changes go to a new one)` : m.pending ? "a merge is already requested" : "needs an open bundle with at least one change";
+}
+async function requestMerge() {
+  const m = S.mb, msg = $("#mbMsg");
+  if (!m || !m.can_merge || S.busy) return;
+  const owner = m.owner || "its owner";
+  const na = m.changes.filter(c => !c.accepted);
+  const list = m.changes.map(c => `- ${c.id}${c.accepted ? "" : "  (NOT ACCEPTED YET)"}: ${c.what}`).join("\n");
+  if (!confirm(`Tell ${owner} to merge ${m.name} (base ${m.base})?\n\n${list}` + (na.length ? `\n\nWarning: ${na.length} change(s) not accepted yet: ${na.map(c => c.id).join(", ")}` : "") + "\n\nNext changes go to a new bundle.")) return;
+  S.busy = true; $("#mbGo").disabled = true;
+  const r = await api("/api/merge", {name:m.name, comment:$("#mbC").value});
+  S.busy = false;
+  if (r.ok) { $("#mbC").value = ""; msg.className = "msg ok"; msg.textContent = `Merge of ${r.name} requested (${hm(r.ts)}). The ${T("manager")} passes it to ${owner}.`; }
+  else { msg.className = "msg err"; msg.textContent = r.error || "failed"; }
+  await load();
+}
+$("#mbGo").onclick = requestMerge;
+function setHdr() { document.documentElement.style.setProperty("--hdr", document.querySelector("header").offsetHeight + "px"); }
+window.addEventListener("resize", setHdr);
+
+function reasonOf(b) { const m = String(b.status || "").match(/\(([^]*)\)\s*$/); return m ? m[1] : ""; }
+function statusHtml(b) {
+  if (b.column === "live") return `<span class="pill lv">${esc(SL("LIVE").toLowerCase())} in ${esc(b.live_label || "?")}</span>`;
+  if (b.column === "closed") { const r = reasonOf(b); return `<span class="pill cl">${esc(SL("CLOSED").toLowerCase())}</span>${r ? ` <span class="rsn">${esc(r)}</span>` : ""}`; }
+  if (b.column === "backlog") return `<span class="pill bl">${esc(SL("BACKLOG").toLowerCase())}</span> <span class="rsn">parked, not now</span>`;
+  return esc(b.status);
+}
+function movedHtml(b) {
+  let h = "";
+  if (b.moved_to) h += b.moved_to.registered ? `<div class="mv">moved &rarr; <a data-card="${esc(b.moved_to.id)}">${esc(b.moved_to.id)}</a></div>`
+    : `<div class="mv"><span class="amb">moved &rarr; ${esc(b.moved_to.id)} (not registered yet)</span></div>`;
+  if (b.moved_from && b.moved_from.length) h += `<div class="mv">moved from ${b.moved_from.map(i => `<a data-card="${esc(i)}">${esc(i)}</a>`).join(", ")}</div>`;
+  return h;
+}
+function card(b) {
+  const nimg = Object.values(b.images || {}).reduce((n, l) => n + (l || []).length, 0);
+  const chk = b.column === "proposed" && !b.duplicate ? `<input type="checkbox" data-sel="${esc(b.id)}" ${S.sel.has(b.id) ? "checked" : ""} title="select for a batch decision">` : "";
+  const p = b.progress || {}, stale = isStale(b);
+  const prog = (p.last || p.pct != null) ? `${bar(p.pct)}<div class="age" title="${esc(p.last || "")}"><span>${stale ? "stale: " : ""}${p.last ? "updated " + esc(ago(p.last)) : ""}</span>${p.pct != null ? `<span class="pc">${p.pct} %</span>` : ""}</div>` : "";
+  return `<div class="card c-${b.column} ${p.open_asks ? "hasask" : ""} ${stale ? "stale" : ""} ${S.open === b.id ? "open" : ""}" data-id="${esc(b.id)}">${chk}<div class="b">
+    <div class="top">${ico(keyOf(b), b.studio)}<span class="id">${esc(b.id)}</span>${prioPill(b)}<span class="studio">${esc(b.studio)}</span>${p.open_asks ? `<span class="akb" title="the ${esc(T("studio"))} asked you something">waiting for your answer</span>` : ""}${p.open_question ? `<span class="qb" title="your newest question has no ${esc(T("studio"))} note after it yet">? question open</span>` : ""}</div>
+    <div class="t">${esc(b.title)}</div><div class="st stc-${b.column}">${statusHtml(b)}</div>${movedHtml(b)}${nimg ? `<div class="studio">${nimg} image${nimg > 1 ? "s" : ""}</div>` : ""}${prog}</div></div>`;
+}
+function renderBatch() {
+  const n = S.sel.size;
+  $("#batch").classList.toggle("hidden", !n || S.tab !== "tasks");
+  $("#batchN").textContent = n + " selected";
+}
+function imgs(list) {
+  if (!list || !list.length) return "";
+  return `<div class="imgs">${list.map(i => i.rel
+    ? `<a data-img="${esc(i.rel)}" title="${esc(i.raw)}"><img loading="lazy" src="/img?p=${encodeURIComponent(i.rel)}" alt="${esc(i.raw)}"><div class="cap">${esc(i.rel.split("/").pop())}</div></a>`
+    : `<span class="miss" title="not found inside the project">${esc(i.raw)}</span>`).join("")}</div>`;
+}
+function fieldRow(k, v, extra) {
+  return `<div class="f"><div class="k">${esc(k)}</div><div><div class="v ${v ? "" : "empty"}">${v ? esc(v) : "-"}</div>${extra || ""}</div></div>`;
+}
+
+function renderDetail() {
+  const det = $("#det");
+  if (!S.open || !S.tasks) { det.classList.add("hidden"); return; }
+  const b = S.tasks.blocks.find(x => x.id === S.open);
+  if (!b) {
+    $("#detHead").innerHTML = `<h3>${esc(S.open)}</h3><div class="sub">no longer in the register</div>`; $("#detBody").innerHTML = "";
+    $("#detAct").classList.add("hidden"); det.classList.remove("hidden"); return;
+  }
+  if (S.openHash && S.openHash !== b.hash) {
+    const n = $("#detNote"); n.className = "msg note";
+    n.textContent = "This task was edited on disk at " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + "; the text below is the new version. Your words are kept.";
+  }
+  S.openHash = b.hash;
+  const keys = [...b.order];
+  for (const k of C.fields) if (!keys.includes(k) && !(k === "handoff" && !ON("HANDOFF"))) keys.push(k);
+  const done = ["closed", "rejected", "live"].includes(b.column);
+  $("#detHead").innerHTML = `<h3>${ico(keyOf(b), b.studio)} ${esc(b.id)} &middot; ${esc(b.title)}</h3><div class="sub">${esc(b.studio)} &middot; <b class="stc-${b.column}">${statusHtml(b)}</b> &middot; line ${b.line}${b.progress && b.progress.open_question ? ' &middot; <span class="qb">? question open</span>' : ""}${b.progress && b.progress.open_asks ? ' &middot; <span class="akb" style="margin-left:0">waiting for your answer</span>' : ""}</div>${movedHtml(b)}${done ? "" : `<div class="pick">priority ${prioButtons(b, "")}<span class="meta">${esc(PN(b.priority || PD()))}${b.fields.priority ? "" : " (default)"}</span></div>`}`;
+  $("#askIn").placeholder = `Question or note for ${b.studio}. The ${T("manager")} passes it on.`;
+  let h = "";
+  for (const k of keys) h += fieldRow(k, b.fields[k] || "", (b.images || {})[k] ? imgs(b.images[k]) : "");
+  if (b.extras && b.extras.length) h += fieldRow("other", b.extras.join("\n"));
+  $("#detBody").innerHTML = h;
+  const p = b.progress || {notes:[]};
+  $("#tlHead").innerHTML = `Timeline <span class="meta">${p.notes.length} item${p.notes.length === 1 ? "" : "s"}</span>${bar(p.pct)}${p.pct != null ? `<span class="meta">${p.pct} %</span>` : ""}${isStale(b) ? `<span class="meta" style="color:var(--need)">no ${esc(T("studio"))} note for ${C.stale_hours} h+</span>` : ""}`;
+  if (!$("#tlList").contains(document.activeElement) || $("#tlList").dataset.k !== b.id) {
+    $("#tlList").innerHTML = p.notes.map(n => tlItem(n, b.id)).join("") || '<div class="empty">nothing yet</div>';
+    $("#tlList").dataset.k = b.id; restoreDrafts();
+  }
+  let btns = "";
+  if (b.duplicate) btns = `<span class="meta">Duplicate id in the register: decide through the ${esc(T("manager"))}.</span>`;
+  else if (b.column === "proposed") btns = '<button class="ok" data-act="approve">Approve</button><button class="bad" data-act="reject">Reject</button>' +
+    (ON("BACKLOG") ? `<button class="pri" data-act="backlog" title="not now: park it (the ${esc(T("studio"))} does nothing with it until you approve it from there)">${esc(SL("BACKLOG"))}</button>` : "");
+  else if (b.column === "backlog") btns = '<button class="ok" data-act="approve_backlog" title="take it out of the backlog: approved, the studio starts it">Approve</button><button class="bad" data-act="reject_backlog">Reject</button>';
+  else if (b.column === "result") {
+    // a result with variants is accepted WITH its pick, in one click (the pick also answers the studio's ask)
+    const qs = ((S.tasks && S.tasks.open_asks) || []).filter(q => q.id === b.id && (q.options || []).length);
+    const q = qs.length ? qs[qs.length - 1] : null;
+    btns = q ? q.options.map(o => `<button class="ok" data-act="accept" data-pick="${esc(o)}" data-rts="${esc(q.nid)}" title="accept with this pick (also answers the question)">Accept: ${esc(o)}</button>`).join("")
+             : `<button class="ok" data-act="accept">Accept ${esc(T("result"))}</button>`;
+    btns += `<button class="bad" data-act="reject_result" title="the task goes back to ${esc(SL("IN WORK").toLowerCase())}">Reject: rework</button>`;
+  }
+  else if (b.column === "closed") btns = `<button class="pri" data-act="reopen" title="back to ${esc(SW("APPROVED"))}">Reopen</button>`;
+  const closable = !b.duplicate && !["CLOSED", "REJECTED", "ACCEPTED", "HANDOFF", "LIVE"].includes(b.stage);
+  if (closable) btns += `<span class="more"><span id="moreMenu" class="hidden"><span class="meta">priority</span>${prioButtons(b, "pb")}<button class="bad" data-act="close" id="closeBtn">Close this task&hellip;</button></span><button class="mbtn" data-more title="more actions">&ctdot;</button></span>`;
+  const words = ["proposed", "result", "closed", "backlog"].includes(b.column) && !b.duplicate;
+  $("#cmtLbl").classList.toggle("hidden", !words); $("#cmt").classList.toggle("hidden", !words);
+  $("#detAct").classList.toggle("hidden", !btns);
+  if ($("#btns").dataset.k !== b.id + b.column) { $("#btns").innerHTML = btns; $("#btns").dataset.k = b.id + b.column; }
+  det.classList.remove("hidden");
+}
+
+const YOU = {question:"You asked", approve:"You approved", reject:"You rejected", accept:"You accepted the result", backlog:"You parked this",
+  approve_backlog:"You approved this from the backlog", reject_backlog:"You rejected this from the backlog",
+  reject_result:"You sent the result back for rework", new_request:"You requested this", close:"You closed this", reopen:"You reopened this", answer:"You answered"};
+function deliv(k) { return {waiting:`waiting for the ${T("manager")}`, passed:`passed to the ${T("studio")}`, answered:"answered"}[k] || k; }
+function replyBox(id, n) {
+  return `<div class="rb" data-rid="${esc(id)}" data-rts="${esc(n.nid)}">${(n.options || []).map(o => `<button class="opt" data-opt="${esc(o)}" title="send this answer">${esc(o)}</button>`).join("")}
+    <textarea data-draft="${esc(id)}|${esc(n.nid)}" maxlength="4000" placeholder="${(n.options || []).length ? "Or write your own answer" : "Your answer"} to ${esc(n.by)} (Ctrl+Enter sends)"></textarea>
+    <div class="row"><button class="pri" data-replygo>Send answer</button></div><div class="msg"></div></div>`;
+}
+function askState(n) {
+  if (n.ask_state === "withdrawn") return `<span class="dl" title="${esc(n.withdraw_reason || "")}">withdrawn</span>`;
+  return n.ask_state === "open" ? '<span class="dl askw">waiting for your answer</span>'
+    : n.ask_state === "answered" ? '<span class="dl answered">answered</span>' : `<span class="dl passed">${esc(deliv("passed"))}</span>`;
+}
+function tlItem(n, id) {
+  const when = `<span title="${esc(n.ts)}">${esc(String(n.ts).replace("T", " ").slice(0, 16))} &middot; ${esc(ago(n.ts))}</span>`;
+  if (n.kind === "ask") {
+    return `<div class="nt ak ${n.ask_state === "withdrawn" ? "wd" : ""}"><div class="hd"><b>${esc(n.by)} asks</b>${when}${askState(n)}</div><div class="tx">${esc(n.note)}</div>${imgs(n.images)}` +
+      (n.ask_state === "open" ? replyBox(id, n) : n.ask_state === "withdrawn" ? `<div class="meta" style="margin-top:3px">withdrawn by ${esc(n.by)}${n.withdraw_reason ? ": " + esc(n.withdraw_reason) : ""}</div>`
+        : (n.reply ? `<div class="meta" style="margin-top:3px">your answer: ${esc(n.reply)}</div>` : "")) + "</div>";
+  }
+  if (n.by === "build") {
+    const t = n.action === "live" ? `${SL("LIVE")} in ${n.build || "?"}` : `Reverted in ${n.build || "?"}, back to work`;
+    return `<div class="nt bd"><div class="hd"><b>${esc(t)}</b>${when}</div>${n.note ? `<div class="tx">${esc(n.note)}</div>` : ""}</div>`;
+  }
+  if (n.by === "user") {
+    const dl = n.delivery ? `<span class="dl ${n.delivery}">${esc(deliv(n.delivery))}</span>` : "";
+    return `<div class="nt u"><div class="hd"><b>${esc(n.action === "priority" ? "You set priority " + (n.to || "?") : (YOU[n.action] || "You"))}</b>${when}${dl}</div>${n.note ? `<div class="tx">${esc(n.note)}</div>` : ""}</div>`;
+  }
+  const a = n.kind === "answer";
+  return `<div class="nt ${a ? "a" : ""}"><div class="hd"><b>${a ? "Answer" : esc(n.by || "?")}</b>${a ? `<span>${esc(n.by)}</span>` : ""}${when}${n.pct != null ? `<span>${n.pct} %</span>` : ""}</div>${n.note ? `<div class="tx">${esc(n.note)}</div>` : ""}${imgs(n.images)}</div>`;
+}
+
+function openCard(id) {
+  if (S.open !== id) {
+    S.open = id; S.openHash = null; $("#cmt").value = ""; $("#askIn").value = ""; $("#askMsg").className = "msg";
+    $("#detMsg").className = "msg"; $("#detNote").className = "msg"; $("#btns").dataset.k = "";
+  }
+  render();
+  $("#det").scrollTop = 0;
+}
+function closeCard() { S.open = null; S.openHash = null; render(); }
+async function decide(id, action, comment) {
+  const b = S.tasks.blocks.find(x => x.id === id);
+  if (!b) return {ok:false, error:id + " not found"};
+  return api("/api/decide", {id, action, hash:b.hash, comment});
+}
+async function onAct(action, pick, rts) {
+  if (S.busy) return;
+  const id = S.open, m = $("#detMsg");
+  let comment = $("#cmt").value;
+  if (action === "accept" && pick) {
+    S.busy = true;
+    const ra = await api("/api/answer", {id, reply_to:rts, text:pick});
+    S.busy = false;
+    if (!ra.ok) { m.className = "msg err"; m.textContent = "Pick not sent: " + (ra.error || "failed"); return; }
+    comment = comment.trim() ? `${comment.trim()} (pick: ${pick})` : `pick: ${pick}`;
+  }
+  if (action === "close") {
+    const reason = prompt(`Close ${id}? Reason (required; it goes in the status as ${SW("CLOSED")} (user: ...)):`, comment);
+    if (reason === null) return;
+    if (!reason.trim()) { m.className = "msg err"; m.textContent = "A reason is needed to close a task."; return; }
+    comment = reason;
+  }
+  if (action === "reopen" && !confirm(`Reopen ${id}? Its status goes back to ${SW("APPROVED")} (reopened by user).`)) return;
+  S.busy = true; [...document.querySelectorAll("#btns button")].forEach(x => x.disabled = true);
+  const r = await decide(id, action, comment);
+  S.busy = false; S.openHash = null;
+  if (r.ok) { m.className = "msg ok"; m.textContent = `${id}: ${r.status} (${r.stamp}). Logged for the ${T("manager")}.`; $("#cmt").value = ""; S.sel.delete(id); }
+  else { m.className = "msg err"; m.textContent = r.error || "failed"; }
+  $("#btns").dataset.k = "";
+  await load();
+}
+async function batchDecide(action, verb) {
+  if (S.busy) return;
+  const ids = [...S.sel], c = $("#batchC").value;
+  if (!ids.length || !confirm(`${verb} ${ids.length} task(s)?\n` + ids.join(", "))) return;
+  S.busy = true; $("#batchGo").disabled = $("#batchBl").disabled = true;
+  const bad = [];
+  for (const id of ids) { const r = await decide(id, action, c); if (r.ok) S.sel.delete(id); else bad.push(id + ": " + (r.error || "failed")); }
+  S.busy = false; $("#batchGo").disabled = $("#batchBl").disabled = false;
+  if (ids.includes(S.open)) S.openHash = null;
+  if (!bad.length) $("#batchC").value = "";
+  await load();
+  if (bad.length) alert("Not done (page reloaded, check and retry):\n\n" + bad.join("\n"));
+}
+
+function renderReqs() {
+  const box = $("#reqs");
+  if (!panelOn("requests")) { box.innerHTML = ""; return; }
+  if (!S.reqs) { box.innerHTML = '<div class="meta">loading...</div>'; return; }
+  const items = S.reqs.items || [];
+  const one = it => {
+    const on = S.reqOpen.has(it.id), st = it.tag || it.status || "";
+    return `<div class="req"><div class="h" data-req="${esc(it.id)}"><span class="id">${esc(it.id)}</span><span>${esc(it.title)}</span><span class="s" title="${esc(st)}">${esc(st)}</span></div>
+      ${on ? `<div class="body">${it.fields.map(([k, v]) => fieldRow(k, v)).join("")}${imgs(it.images)}</div>` : ""}</div>`;
+  };
+  const open = items.filter(i => !i.closed), closed = items.filter(i => i.closed);
+  box.innerHTML = `<div class="meta">Read-only view of the requests inbox${S.reqs.error ? ' &middot; <span class="red">' + esc(S.reqs.error) + "</span>" : ""}. New work for a ${esc(T("studio"))}: use + New request.</div>
+    <div class="sec">Open (${open.length})</div>${open.map(one).join("") || '<div class="empty">none</div>'}
+    <div class="sec">Closed (${closed.length})</div>${closed.map(one).join("") || '<div class="empty">none</div>'}`;
+}
+
+function buildTabs() {
+  const tabs = [["tasks", "Tasks"]];
+  if (panelOn("requests") || panelOn("bundle")) tabs.push(["reqs", (panelOn("requests") ? C.panels.requests.title : C.panels.bundle.title) || "Requests"]);
+  tabs.push(["asks", "Questions"]);
+  if (panelOn("queue") || panelOn("system")) tabs.push(["queue", (panelOn("queue") ? C.panels.queue.title : "System") || "Queue"]);
+  $("#tabs").innerHTML = tabs.map(([k, l]) => `<button data-tab="${k}">${esc(l)}</button>`).join("");
+  return tabs.map(t => t[0]);
+}
+function setTab(t) {
+  S.tab = t; ls.set("tab", t);
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  for (const k of ["tasks", "reqs", "asks", "queue"]) $("#tab-" + k).classList.toggle("hidden", t !== k);
+  if (t !== "tasks") closeCard(); else renderBatch();
+}
+function lightbox(rel) {
+  $("#lbImg").src = "/img?p=" + encodeURIComponent(rel); $("#lbCap").textContent = rel;
+  $("#lb").classList.remove("hidden");
+}
+function restoreDrafts() { document.querySelectorAll("[data-draft]").forEach(x => { x.value = S.drafts[x.dataset.draft] || ""; }); }
+function renderAsks() {
+  const box = $("#asks"), list = (S.tasks && S.tasks.open_asks) || [];
+  const k = list.map(q => q.id + q.nid).join("|");
+  if (box.contains(document.activeElement) && box.dataset.k === k) return;   // keep the answer being typed
+  box.dataset.k = k;
+  box.innerHTML = list.map(q => `<div class="qi"><div class="hd">${ico(q.skey || q.studio)}<b style="color:var(--fg)">${esc(q.studio)}</b>
+      ${q.general ? `<span>${esc(q.id)} (general)</span>` : `<a data-card="${esc(q.id)}" title="${esc(q.title)}">${esc(q.id)}</a><span>${esc(q.title)}</span>`}
+      <span style="margin-left:auto" title="${esc(q.ts)}">${esc(ago(q.ts))}</span></div>
+      <div class="tx">${esc(q.note)}</div>${imgs(q.images)}${replyBox(q.id, {nid:q.nid, by:q.studio, options:q.options})}</div>`).join("")
+    || `<div class="empty">No open questions from the ${esc(T("studios"))}.</div>`;
+  // plain notes on GEN-<studio> threads in the last 24 h (announcements, no answer needed)
+  const day = Date.now() - 24 * 3600 * 1000, ann = [];
+  for (const g of ((S.tasks && S.tasks.general) || []))
+    for (const n of ((g.progress && g.progress.notes) || []))
+      if (n.kind === "note" && n.by && n.by !== "user" && new Date(n.ts).getTime() > day) ann.push({g, n});
+  ann.sort((a, b) => (a.n.ts < b.n.ts ? 1 : -1));
+  if (ann.length) box.innerHTML += `<div class="sec" style="margin-top:14px">${esc(cap(T("studio")))} notes (last 24 h, no answer needed)</div>` +
+    ann.slice(0, 12).map(({g, n}) => `<div class="qi"><div class="hd">${ico(g.skey || g.studio)}<b style="color:var(--fg)">${esc(n.by)}</b><span>${esc(g.id)}</span>
+      <span style="margin-left:auto" title="${esc(n.ts)}">${esc(ago(n.ts))}</span></div><div class="tx">${esc(n.note)}</div>${imgs(n.images)}</div>`).join("");
+  restoreDrafts();
+}
+async function sendAnswer(rb, text) {
+  const m = rb.querySelector(".msg");
+  text = (text || "").trim();
+  if (!text) { m.className = "msg err"; m.textContent = "Write an answer or pick an option."; return; }
+  if (S.busy) return;
+  S.busy = true; rb.querySelectorAll("button").forEach(x => x.disabled = true);
+  const r = await api("/api/answer", {id:rb.dataset.rid, reply_to:rb.dataset.rts, text});
+  S.busy = false; rb.querySelectorAll("button").forEach(x => x.disabled = false);
+  if (r.ok) { delete S.drafts[rb.dataset.rid + "|" + rb.dataset.rts]; if (document.activeElement) document.activeElement.blur(); }
+  else { m.className = "msg err"; m.textContent = r.error || "failed"; }
+  await load();
+}
+document.addEventListener("input", e => { const d = e.target.dataset && e.target.dataset.draft; if (d) S.drafts[d] = e.target.value; });
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && e.target.dataset && e.target.dataset.draft) { e.preventDefault(); sendAnswer(e.target.closest(".rb"), e.target.value); }
+});
+
+document.addEventListener("click", e => {
+  const t = e.target;
+  const op = t.closest("[data-opt]"); if (op) { const rb = op.closest(".rb"), extra = rb.querySelector("textarea").value.trim(); sendAnswer(rb, op.dataset.opt + (extra ? " — " + extra : "")); return; }
+  const rg = t.closest("[data-replygo]"); if (rg) { const rb = rg.closest(".rb"); sendAnswer(rb, rb.querySelector("textarea").value); return; }
+  const im = t.closest("[data-img]"); if (im) { lightbox(im.dataset.img); return; }
+  if (t.matches("[data-sel]")) { t.checked ? S.sel.add(t.dataset.sel) : S.sel.delete(t.dataset.sel); renderBatch(); e.stopPropagation(); return; }
+  const cl = t.closest("[data-card]"); if (cl) { setTab("tasks"); openCard(cl.dataset.card); return; }
+  if (t.closest("[data-more]")) { const mm = $("#moreMenu"); if (mm) mm.classList.toggle("hidden"); return; }
+  const pr = t.closest("[data-prio]"); if (pr) { setPrio(+pr.dataset.prio); return; }
+  if (t.closest("[data-hip]")) { S.hip = !S.hip; $("#hiP").classList.toggle("on", S.hip); ls.set("hip", S.hip ? "1" : ""); render(); return; }
+  const c = t.closest(".card"); if (c) { openCard(c.dataset.id); return; }
+  const a = t.closest("[data-act]"); if (a) { onAct(a.dataset.act, a.dataset.pick, a.dataset.rts); return; }
+  const rq = t.closest("[data-req]"); if (rq) { const id = rq.dataset.req; S.reqOpen.has(id) ? S.reqOpen.delete(id) : S.reqOpen.add(id); renderReqs(); return; }
+  const sf = t.closest("[data-sf]"); if (sf) { S.studio = sf.dataset.sf; ls.set("studio", S.studio); render(); return; }
+  const tb = t.closest("[data-tab]"); if (tb) { setTab(tb.dataset.tab); return; }
+  const gh = t.closest("[data-hold]"); if (gh) { qHold(gh.dataset.hold, gh); return; }
+  if (t.closest("#gstrip")) { setTab("queue"); return; }
+});
+$("#detX").onclick = closeCard;
+async function sendQuestion() {
+  const id = S.open, v = $("#askIn").value.trim(), m = $("#askMsg");
+  if (!id || S.busy) return;
+  if (!v) { m.className = "msg err"; m.textContent = "Write your question first."; return; }
+  const b = S.tasks && S.tasks.blocks.find(x => x.id === id);
+  S.busy = true; $("#askGo").disabled = true;
+  const r = await api("/api/question", {id, question:v});
+  S.busy = false; $("#askGo").disabled = false;
+  if (r.ok) { $("#askIn").value = ""; m.className = "msg ok"; m.textContent = `Sent. The ${T("manager")} passes it to ${b ? b.studio : "the " + T("studio")}; its delivery shows in the timeline.`; }
+  else { m.className = "msg err"; m.textContent = r.error || "failed"; }
+  await load();
+}
+$("#askGo").onclick = sendQuestion;
+$("#askIn").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendQuestion(); } });
+$("#lb").onclick = () => { $("#lb").classList.add("hidden"); $("#lbImg").src = ""; };
+$("#batchGo").onclick = () => batchDecide("approve", "Approve");
+$("#batchBl").onclick = () => batchDecide("backlog", "Park in the backlog");
+$("#batchClr").onclick = () => { S.sel.clear(); render(); };
+
+S.newStudio = ""; S.newPrio = 3;
+function renderNewPickers() {
+  $("#spick").innerHTML = C.studios.map(s => `<button type="button" data-ns="${esc(s.key)}" class="${S.newStudio === s.key ? "on" : ""}" title="${esc(s.owner)}">${ico(s.key)} ${esc(s.label)}</button>`).join("");
+  $("#ppick").innerHTML = [1, 2, 3, 4].map(n => `<button type="button" class="p${n} ${S.newPrio === n ? "on" : ""}" data-np="${n}" title="P${n} ${esc(PN(n))}">P${n} ${esc(PN(n))}</button>`).join("");
+}
+$("#spick").addEventListener("click", e => { const b = e.target.closest("[data-ns]"); if (b) { S.newStudio = b.dataset.ns; renderNewPickers(); } });
+$("#ppick").addEventListener("click", e => { const b = e.target.closest("[data-np]"); if (b) { S.newPrio = +b.dataset.np; renderNewPickers(); } });
+$("#newBtn").onclick = () => { $("#newM").classList.remove("hidden"); $("#newMsg").className = "msg"; renderNewPickers(); const b = $("#spick button"); if (b) b.focus(); };
+$("#newCancel").onclick = () => $("#newM").classList.add("hidden");
+$("#newF").onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target, m = $("#newMsg");
+  if (!S.newStudio) { m.className = "msg err"; m.textContent = `Pick the ${T("studio")} this request is for.`; return; }
+  const r = await api("/api/new", {studio:S.newStudio, priority:"P" + S.newPrio, title:f.title.value, what:f.what.value, visual:f.visual.value});
+  if (r.ok) { f.reset(); S.newStudio = ""; S.newPrio = PD(); renderNewPickers(); $("#newM").classList.add("hidden"); await load(); setTab("tasks"); openCard(r.id); const dm = $("#detMsg"); dm.className = "msg ok"; dm.textContent = `${r.id} added: ${r.status}.`; }
+  else { m.className = "msg err"; m.textContent = r.error || "failed"; }
+};
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (!$("#lb").classList.contains("hidden")) $("#lb").click();
+  else if (!$("#newM").classList.contains("hidden")) $("#newM").classList.add("hidden");
+  else if (S.open) closeCard();
+});
+
+// ---------------------------------------------------------------- desktop alerts: one alert when something NEW needs the user
+// (a proposal to approve, a result to accept, a studio question, a bundle ready for the merge button). Off until turned on.
+const NT = {seen:null, on:false};
+function ntItems() {
+  const out = new Map();
+  if (!S.tasks) return out;
+  for (const b of S.tasks.blocks) {
+    if (b.column === "proposed") out.set("P:" + b.id, {id:b.id, text:`To approve: ${b.id} ${b.title}`});
+    else if (b.column === "result") out.set("R:" + b.id, {id:b.id, text:`${cap(T("result"))} to accept: ${b.id} ${b.title}`});
+  }
+  for (const a of (S.tasks.open_asks || [])) out.set("Q:" + a.nid, {id:a.id, ask:true, text:`Question from ${a.studio} (${a.id}): ${String(a.note || "").slice(0, 140)}`});
+  const mb = S.mb || {};
+  if (mb.enabled && mb.name && mb.state === "open" && (mb.changes || []).length && mb.changes.every(c => c.accepted) && !mb.pending)
+    out.set("M:" + mb.name + ":" + mb.changes.map(c => c.id).join(","), {tab:"reqs", text:`${mb.name} is ready for your merge button`});
+  return out;
+}
+function ntCheck() {
+  const cur = ntItems();
+  if (NT.seen === null) { NT.seen = new Set(cur.keys()); return; }   // first load: no alert for what was already waiting
+  const fresh = [...cur.entries()].filter(([k]) => !NT.seen.has(k));
+  NT.seen = new Set(cur.keys());
+  if (!fresh.length || !NT.on || !("Notification" in window) || Notification.permission !== "granted") return;
+  const body = fresh.slice(0, 4).map(([, v]) => v.text).join("\n") + (fresh.length > 4 ? `\n+${fresh.length - 4} more` : "");
+  const first = fresh[0][1];
+  const n = new Notification(fresh.length === 1 ? `${C.project}: needs you` : `${C.project}: ${fresh.length} things need you`, {body, tag:C.app_id, renotify:true});
+  n.onclick = () => { window.focus(); if (first.tab) setTab(first.tab); else if (first.ask) setTab("asks"); else { setTab("tasks"); openCard(first.id); } n.close(); };
+}
+function ntButton() {
+  const b = $("#ntBtn");
+  const can = "Notification" in window, perm = can ? Notification.permission : "denied", on = NT.on && perm === "granted";
+  b.classList.toggle("on", on);
+  b.textContent = on ? "\u{1F514} alerts on" : "\u{1F515} alerts off";
+  b.title = !can ? "this browser has no desktop notifications" : perm === "denied" ? "notifications are blocked for this page in the browser's site settings"
+    : "one desktop alert when something new needs you. Keep this tab open (it can be in the background).";
+}
+$("#ntBtn").addEventListener("click", async () => {
+  if (!("Notification" in window)) return;
+  if (NT.on) NT.on = false;
+  else { const p = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission; NT.on = p === "granted"; }
+  ls.set("notify", NT.on ? "1" : "0");
+  ntButton();
+});
+
+// ---------------------------------------------------------------- shared-resource queue (read-only view + the user's Hold button)
+const mins = m => m == null ? "?" : m < 60 ? Math.round(m) + " min" : Math.floor(m / 60) + " h " + String(Math.round(m % 60)).padStart(2, "0");
+const inMin = m => m < 0 ? Math.round(-m) + " min ago" : "in " + mins(m);
+const lvl = pct => pct > 90 ? "l2" : pct >= 70 ? "l1" : "";
+function meter(pct) { return `<span class="meter ${lvl(pct)}"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></span>`; }
+function lbar(label, pct, val) {
+  return pct == null ? "" : `<span class="lbar" title="${label} ${Math.round(pct)} %">${label}${meter(pct)}<b class="v ${lvl(pct)}">${val}</b></span>`;
+}
+function sysRow(label, pct, val) {
+  return `<div class="sysrow"><span class="meta">${label}</span>${pct == null ? '<span class="meta">n/a</span>' : meter(pct)}<span class="${lvl(pct || 0)}">${pct == null ? "" : val}</span></div>`;
+}
+const gb = mb => (mb / 1024).toFixed(1);
+function sysBars(g) {
+  const sm = g.smi, sy = g.sys || {}, ram = sy.ram, okSmi = sm && !sm.error;
+  return {gpu: okSmi ? sm.util : null, vram: okSmi ? 100 * sm.mem_used / sm.mem_total : null, vramV: okSmi ? `${gb(sm.mem_used)} / ${gb(sm.mem_total)} GB` : "",
+          cpu: sy.cpu == null ? null : sy.cpu, ram: ram ? 100 * ram.used_mb / ram.total_mb : null, ramV: ram ? `${gb(ram.used_mb)} / ${Math.round(ram.total_mb / 1024)} GB` : ""};
+}
+function turnText(tu) {
+  if (!tu) return "";
+  if (tu.mode === "grace") return `${esc(tu.owner)} in grace, ${tu.grace_s} s left (job ${tu.jobs}, ${tu.left_min} min of turn left)`;
+  if (tu.mode === "gap") return `${esc(tu.owner)}; short job of ${esc(tu.gap_owner)} in its gap`;
+  return `${esc(tu.owner)}, job ${tu.jobs}, ${tu.left_min} of ${tu.max_min} min left`;
+}
+async function qHold(action, btn) {
+  if (btn) btn.disabled = true;
+  let r; try { r = await api("/api/hold", {action}); } catch (e) { r = {ok:false, error:"server not answering"}; }
+  if (!r.ok) alert(action + ": " + (r.error || "failed"));
+  await loadQueue();
+}
+async function loadQueue() {
+  if (!(panelOn("queue") || panelOn("system") || (C.schedule && (C.schedule.deadline || C.schedule.build)))) return;
+  let g;
+  try { g = await api("/api/queue"); } catch (e) { $("#gstrip").innerHTML = '<span class="red">queue view: server not answering</span>'; return; }
+  S.q = g; renderQueue();
+}
+function renderQueue() {
+  const g = S.q; if (!g || !C) return;
+  const qq = g.queue || {}, lk = qq.lock, tu = qq.turn, tk = qq.tickets || [], to = g.tonight || {};
+  const qt = (C.panels.queue && C.panels.queue.title) || "queue";
+  const held = lk && lk.hold;
+  $("#userhold").classList.toggle("hidden", !held);
+  if (held) $("#userhold").textContent = `YOU HOLD THE ${qt.toUpperCase()}: held for ${mins(lk.held_min)}; the queue waits behind it (${tk.length} waiting).`;
+  $("#gstrip").classList.remove("hidden");
+  const sb = sysBars(g);
+  const sys = [lbar("GPU", sb.gpu, sb.gpu == null ? "" : sb.gpu + " %"), lbar("CPU", sb.cpu, sb.cpu == null ? "" : Math.round(sb.cpu) + " %"),
+               lbar("RAM", sb.ram, sb.ramV), lbar("VRAM", sb.vram, sb.vramV)].filter(Boolean);
+  let parts = [];
+  if (panelOn("queue")) {
+    const hb = held ? `<button class="gh rel" data-hold="release" title="give the ${esc(qt)} back to the ${esc(T("studios"))}">Release ${esc(qt)}</button>`
+      : (g.hold && g.hold.pending) ? `<button class="gh pend" data-hold="release" title="the running job finishes first; click to cancel">Holding&hellip; (after the running job) &times;</button>`
+      : `<button class="gh" data-hold="hold" title="hold the ${esc(qt)} for yourself: the running job finishes, then nothing new starts until you release it">Hold ${esc(qt)}</button>`;
+    const lock = !lk ? 'lock <b class="grn">free</b>' : `lock ${ico(lk.owner)} <b>${esc(lk.owner)}</b> ${mins(lk.held_min)}${lk.alive || lk.hold ? "" : ' <span class="red">(pid dead)</span>'}`;
+    const old = tk.filter(x => x.wait_min > 30).length;
+    const q = tk.length ? `queue <b>${tk.length}</b>${old ? ` <span class="amb">(${old} over 30 min)</span>` : ""}: ${tk.map(x => ico(x.owner) + " " + esc(String(x.owner).replace(/-studio$/, "")) + " " + mins(x.wait_min)).join(", ")}` : "queue empty";
+    parts = [hb, ...sys, lock, tu ? "turn " + turnText(tu) : "", q];
+  } else parts = [...sys];
+  const dl = to.deadline ? `${esc(T("ready_file"))}s by ${to.deadline.at} <b>${inMin(to.deadline.in_min)}</b>` : "";
+  const bd = to.build ? `<span class="blu">${esc(T("build").toUpperCase())} RUNNING since ${esc(to.build.since)}</span>` : (to.build_start ? `${esc(T("build"))} ~${to.build_start.at}` : "");
+  parts.push(dl, bd, mbLine());
+  if (g.error) parts.push(`<span class="red">${esc(g.error)}</span>`);
+  $("#gstrip").innerHTML = parts.filter(Boolean).map(x => `<span>${x}</span>`).join("");
+  setHdr();
+  // detail tab
+  const box = (h, body) => `<div class="gbox"><h3>${h}</h3>${body}</div>`;
+  const kv = rows => `<div class="kv">${rows.filter(r => r && r[1]).map(([k, v]) => `<div class="k">${k}</div><div>${v}</div>`).join("")}</div>`;
+  let html = `<div class="meta" style="margin-bottom:8px">Read-only view of the shared ${esc(qt)} queue. Only the ${esc(T("manager"))} manages it; your Hold button is the exception. Updated ${esc(g.time)}${g.error ? ' &middot; <span class="red">' + esc(g.error) + "</span>" : ""}</div><div class="ggrid">`;
+  if (g.sys || g.smi) html += box("Machine", sysRow("GPU", sb.gpu, sb.gpu + " %") + sysRow("VRAM", sb.vram, sb.vramV) + sysRow("CPU", sb.cpu, sb.cpu == null ? "" : Math.round(sb.cpu) + " %") + sysRow("RAM", sb.ram, sb.ramV) + (g.smi && g.smi.error ? `<div class="meta">GPU: ${esc(g.smi.error)}</div>` : ""));
+  if (panelOn("queue")) {
+    html += box("Lock", !lk ? '<div class="big grn">free</div>' : kv([
+      ["holder", `${ico(lk.owner)} <b class="${lk.hold ? "amb" : ""}">${esc(lk.owner)}</b>${lk.priority ? '<span class="tag">priority</span>' : ""}`],
+      ["what", esc(lk.what)], ["pid", lk.hold ? "" : `${lk.pid ?? "?"} ${lk.alive ? '<span class="grn">alive</span>' : '<span class="red">not alive</span>'}`],
+      ["held", `<span class="${lk.held_min > (qq.settings ? qq.settings.turn_max_min + 5 : 25) && !lk.hold && !lk.priority ? "amb" : ""}">${mins(lk.held_min)}</span>`],
+      ["owner line", `<span class="meta">${esc(lk.line)}</span>`]]));
+    html += box("Turn", !tu ? '<div class="meta">no turn running</div>' : kv([
+      ["owner", `${ico(tu.owner)} <b>${esc(tu.owner)}</b>${tu.priority ? '<span class="tag">priority</span>' : ""}`],
+      ["state", tu.mode === "grace" ? `<span class="amb">grace: ${tu.grace_s} s left</span>` : tu.mode === "gap" ? `short job of ${esc(tu.gap_owner)} in its gap` : "holding"],
+      ["turn", `job ${tu.jobs}, ${tu.used_min} min used, <b>${tu.left_min} min left</b> of ${tu.max_min}`]]) +
+      (Object.keys(qq.bans || {}).length ? `<div class="meta" style="margin-top:6px">no gaps (overran): ${Object.entries(qq.bans).map(([o, u]) => esc(o) + " until " + esc(u)).join(", ")}</div>` : ""));
+    html += box(`Queue (${tk.length})`, tk.length ? tk.map((x, i) => `<div class="tk"><span class="n">#${i + 1}</span><span>${ico(x.owner)} <b>${esc(x.owner)}</b>${x.priority ? '<span class="tag">priority</span>' : ""}${x.p1 ? '<span class="tag">P1</span>' : ""}${x.short ? '<span class="tag">short</span>' : ""}${x.task ? `<span class="tag">${esc(x.task)}</span>` : ""}</span><span class="w ${x.wait_min > 30 ? "amb" : ""}">waiting ${mins(x.wait_min)}</span><span class="j">${esc(x.what)} &middot; P${x.prio} &middot; pid ${esc(x.pid)}</span></div>`).join("") : '<div class="meta">nobody waiting</div>');
+  }
+  if (to.deadline || to.build_start || to.build || (to.ready || []).length) html += box(`Next ${esc(T("build"))}`, kv([
+    ["handover", to.handover ? `call at <b>${to.handover.at}</b> (${inMin(to.handover.in_min)})` : ""],
+    ["deadline", to.deadline ? `${esc(T("ready_file"))}s by <b>${to.deadline.at}</b> (${inMin(to.deadline.in_min)})` : ""],
+    [esc(T("build")), to.build ? `<b class="blu">RUNNING</b> since ${esc(to.build.since)} (${mins(to.build.min)})${to.build.text ? ' <span class="meta">' + esc(to.build.text) + "</span>" : ""}` : to.build_start ? `starts ~<b>${to.build_start.at}</b> (${inMin(to.build_start.in_min)})` : ""]]) +
+    `<div style="margin-top:8px">${(to.ready || []).map(r => `<div class="tk" style="grid-template-columns:1fr auto"><span>${ico(r.studio)} ${esc(r.studio)}</span><span class="w ${r.age_min > 360 ? "amb" : ""}">written ${esc(r.stamp)} (${mins(r.age_min)} ago)</span></div>`).join("") || `<div class="meta">no ${esc(T("ready_file"))}s</div>`}</div>`);
+  html += "</div>";
+  $("#queue").innerHTML = html;
+}
+
+// ---------------------------------------------------------------- start
+async function init() {
+  try { C = await api("/api/config"); } catch (e) { $("#stamp").textContent = "server not answering"; return; }
+  if (!C || !C.studios) { $("#stamp").textContent = "config not readable"; return; }
+  LS = "sb." + (C.app_id || "board") + ".";
+  $("#ttl").textContent = C.project; document.title = C.project;
+  $("#sfLbl").textContent = cap(T("studio"));
+  $("#newStudioLbl").textContent = cap(T("studio"));
+  $("#newIntro").textContent = `Goes in as ${SW("APPROVED")} (user request, board), with the next free id for the ${T("studio")}.`;
+  $("#asksIntro").textContent = `Questions the ${T("studios")} asked you, oldest first. Your answer goes to the ${T("studio")} through the ${T("manager")}.`;
+  $("#mbTitle").textContent = (C.panels.bundle && C.panels.bundle.title) || "Bundle";
+  $("#mbGo").textContent = (C.panels.bundle && C.panels.bundle.button) || "Merge this bundle";
+  $("#batchBl").textContent = `${SL("BACKLOG")} selected`;
+  S.newPrio = PD();
+  S.studio = ls.get("studio") || ""; S.hip = ls.get("hip") === "1"; NT.on = ls.get("notify") === "1";
+  $("#hiP").classList.toggle("on", S.hip);
+  const tabs = buildTabs(), want = ls.get("tab") || "tasks";
+  setTab(tabs.includes(want) ? want : "tasks");
+  ntButton(); setHdr();
+  await load();
+  await loadQueue();
+  // poll while visible; with alerts on, also in the background (browsers slow hidden tabs to about once a minute)
+  setInterval(() => { if (!S.busy && (document.visibilityState === "visible" || NT.on)) load(); }, 20000);
+  setInterval(() => { if (document.visibilityState === "visible") loadQueue(); }, 10000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") load(); });
+}
+init();
+</script>
+</body>
+</html>

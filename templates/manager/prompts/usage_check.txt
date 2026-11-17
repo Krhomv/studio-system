@@ -1,0 +1,6 @@
+Usage check ({{PROJECT}}; cron "19,49 * * * *", recurring; the user's rule: <describe the rule and the threshold N %>).
+Call mcp__ccd_session_mgmt__get_usage. If <describe the window(s) that count> is at <N> % or more, follow
+{{ROOT}}/{{HUB}}/manager/USAGE_HALT.md "Halt" now (HALT to every working {{TERM_STUDIO}} and any subagent, stop the sessions you started that are
+still working after 10 min, delete the scheduled jobs, full handover in {{HUB}}/manager/NEXT.md, one short message to the user, then
+stop). At <N - 3> % or more (below <N>), create a second check every 10 minutes ("*/10 * * * *", same text) if there is none, and
+note its id in NEXT.md. Below <N - 3> %, end the turn with one short line and no wrap-up box.

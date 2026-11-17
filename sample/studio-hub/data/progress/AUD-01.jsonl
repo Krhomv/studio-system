@@ -1,0 +1,3 @@
+{"ts": "2026-11-17T02:29:26.000000", "nid": "20261117T022926.000000-2a8c", "by": "audio-studio", "pct": 80, "note": "Wood tag added to 212 floor meshes.", "images": ["studios/audio/cards/AUD-01_steps.png"]}
+{"ts": "2026-11-17T16:59:26.000000", "nid": "20261117T165926.000000-5c2d", "by": "user", "pct": null, "note": "Does the rule also cover the bridge planks?", "images": [], "kind": "question"}
+{"ts": "2026-11-17T17:29:26.000000", "nid": "20261117T172926.000000-2822", "by": "audio-studio", "pct": 85, "note": "Not yet: the bridge planks use the stone surface. Adding them now.", "images": [], "answer": true}

@@ -1,0 +1,5 @@
+{"ts": "2026-11-17T14:29:26.000000", "nid": "20261117T142926.000000-c19a", "by": "art-studio", "pct": 10, "note": "Aim: this is the sign I'll change (marked).", "images": ["studios/art/cards/ART-04_sign_aim.png"]}
+{"ts": "2026-11-17T17:29:26.000000", "nid": "20261117T172926.000000-12e6", "by": "art-studio", "pct": null, "note": "Same sign question, first version (re-posted with a picture).", "images": [], "kind": "ask"}
+{"ts": "2026-11-17T17:30:26.000000", "nid": "20261117T173026.000000-c92f", "by": "art-studio", "pct": null, "note": "", "images": [], "kind": "withdraw", "reply_to": "20261117T172926.000000-12e6"}
+{"ts": "2026-11-17T20:29:26.000000", "nid": "20261117T202926.000000-e9cf", "by": "art-studio", "pct": null, "note": "Keep the hand-painted letter style, or switch to a clean print style for readability?", "images": ["studios/art/cards/ART-04_sign_aim.png"], "kind": "ask", "options": ["keep hand-painted", "clean print"]}
+{"ts": "2026-11-17T21:29:26.000000", "nid": "20261117T212926.000000-cd87", "by": "art-studio", "pct": 40, "note": "Atlas redrawn at 2x, now checking the far view.", "images": ["studios/art/cards/ART-04_sign_wip.png"]}

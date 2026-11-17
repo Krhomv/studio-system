@@ -1,0 +1,23 @@
+{
+  "name": "bundle-0004",
+  "title": "Level fixes, batch 4",
+  "opened": "2026-11-16T20:29:26",
+  "base": "v3",
+  "changes": [
+    {
+      "id": "LVL-01",
+      "what": "east bridge railing gap closed",
+      "accepted": true
+    },
+    {
+      "id": "LVL-02",
+      "what": "cave entrance widened by 1 m (camera test pending)",
+      "accepted": false
+    }
+  ],
+  "state": "open",
+  "state_ts": "2026-11-16T20:29:26",
+  "merged_as": "",
+  "merge_log": "",
+  "note": "LVL-02 waits for its A/B"
+}

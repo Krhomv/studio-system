@@ -1,0 +1,10 @@
+Handover call ({{PROJECT}}; cron for ~{{HANDOVER}}, recurring). The {{TERM_BUILD}} starts ~{{BUILD_TIME}}; the {{TERM_READY}} deadline is {{DEADLINE}}.
+Message each {{TERM_STUDIO}} that keeps a {{TERM_READY}} (<list: key - session id>; skip the ones without a {{TERM_READY}}: <list>, and
+the ones the user parked):
+"Handover call: put EVERYTHING that is finished, checked AND user-ACCEPTED into {{HUB}}/ready/<owner>.md by {{DEADLINE}}, including anything
+you labelled 'for tomorrow'. Each item names the user's acceptance (words + time) and has install with a dry run, revert, checks and
+what 'worse' looks like. Not-yet-accepted results stay under 'not ready'. Set each card that is fully in the file to HANDOFF.
+No queue jobs that would still run at {{BUILD_TIME}} unless short. One line back with what is in."
+If the list is longer than ~8 sessions, write this text once into {{HUB}}/manager/handover_<date>.md and send short pointers.
+At ~{{DEADLINE}} check the stamps (ls {{HUB}}/ready/), note each owner's stamp and items in {{HUB}}/manager/NEXT.md
+("<MM-DD> {{DEADLINE}} READY STAMPS FOR <round>"), and chase any {{TERM_STUDIO}} that hasn't answered.
